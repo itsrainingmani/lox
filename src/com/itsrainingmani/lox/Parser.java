@@ -1,10 +1,5 @@
 package com.itsrainingmani.lox;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.invoke.WrongMethodTypeException;
-import java.lang.invoke.MethodHandles.Lookup;
 import java.util.List;
 
 import static com.itsrainingmani.lox.TokenType.*;
@@ -25,12 +20,6 @@ primary        → NUMBER | STRING | "true" | "false" | "nil"
 class Parser {
   private final List<Token> tokens;
   private int current = 0;
-
-  // The entry point, the lookup object
-  private static Lookup lookup = MethodHandles.lookup();
-
-  // For a method that returns an Expr and accepts no arguments
-  private static MethodType exprMH = MethodType.methodType(Expr.class);
 
   Parser(List<Token> tokens) {
     this.tokens = tokens;
@@ -76,18 +65,12 @@ class Parser {
     return expr;
   }
 
-  private Expr factor() throws Throwable {
-    return leftAssocOps("methodName", SLASH, STAR);
-  }
+  private Expr factor() {
+    Expr expr = unary();
 
-  private Expr leftAssocOps(String methodName, TokenType... types)
-      throws Throwable {
-    MethodHandle handle = lookup.findVirtual(Parser.class, methodName, exprMH);
-    Expr expr = (Expr) handle.invoke();
-
-    while (match(types)) {
+    while (match(SLASH, STAR)) {
       Token operator = previous();
-      Expr right = (Expr) handle.invoke();
+      Expr right = unary();
       expr = new Expr.Binary(expr, operator, right);
     }
 
