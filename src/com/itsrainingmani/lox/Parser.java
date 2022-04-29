@@ -18,6 +18,9 @@ primary        → NUMBER | STRING | "true" | "false" | "nil"
 // A recursive descent parser is a literal translation of the grammar’s rules straight into imperative code. 
 // Each grammar rules becomes a method inside the Parser class
 class Parser {
+  private static class ParseError extends RuntimeException {
+  }
+
   private final List<Token> tokens;
   private int current = 0;
 
@@ -77,6 +80,37 @@ class Parser {
     return expr;
   }
 
+  private Expr unary() {
+    if (match(BANG, MINUS)) {
+      Token operator = previous();
+      Expr right = unary();
+      return new Expr.Unary(operator, right);
+    }
+
+    return primary();
+  }
+
+  // Highest level of precedence
+  private Expr primary() {
+    // Most of the cases are single terminals
+    if (match(FALSE))
+      return new Expr.Literal(false);
+    if (match(TRUE))
+      return new Expr.Literal(true);
+    if (match(NIL))
+      return new Expr.Literal(null);
+
+    if (match(NUMBER, STRING)) {
+      return new Expr.Literal(previous().literal);
+    }
+
+    if (match(LEFT_PAREN)) {
+      Expr expr = expression();
+      consume(RIGHT_PAREN, "Expect ')' after expression");
+      return new Expr.Grouping(expr);
+    }
+  }
+
   private boolean match(TokenType... types) {
     for (TokenType type : types) {
       if (check(type)) {
@@ -114,5 +148,17 @@ class Parser {
 
   private Token previous() {
     return tokens.get(current - 1);
+  }
+
+  private ParseError error(Token token, String message) {
+    Lox.error(token, message);
+    return new ParseError();
+  }
+
+  private Token consume(TokenType type, String message) {
+    if (check(type))
+      return advance();
+
+    throw error(peek(), message);
   }
 }
