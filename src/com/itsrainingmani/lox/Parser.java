@@ -18,6 +18,14 @@ primary        → NUMBER | STRING | "true" | "false" | "nil"
 // A recursive descent parser is a literal translation of the grammar’s rules straight into imperative code. 
 // Each grammar rules becomes a method inside the Parser class
 class Parser {
+  Expr parse() {
+    try {
+      return expression();
+    } catch (ParseError error) {
+      return null;
+    }
+  }
+
   private static class ParseError extends RuntimeException {
   }
 
@@ -109,6 +117,8 @@ class Parser {
       consume(RIGHT_PAREN, "Expect ')' after expression");
       return new Expr.Grouping(expr);
     }
+
+    throw error(peek(), "Expect expression.");
   }
 
   private boolean match(TokenType... types) {
@@ -153,6 +163,29 @@ class Parser {
   private ParseError error(Token token, String message) {
     Lox.error(token, message);
     return new ParseError();
+  }
+
+  private void synchronize() {
+    advance();
+
+    while (!isAtEnd()) {
+      if (previous().type == SEMICOLON)
+        return;
+
+      switch (peek().type) {
+        case CLASS:
+        case FUN:
+        case VAR:
+        case FOR:
+        case IF:
+        case WHILE:
+        case PRINT:
+        case RETURN:
+          return;
+      }
+
+      advance();
+    }
   }
 
   private Token consume(TokenType type, String message) {
