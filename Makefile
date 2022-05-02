@@ -163,16 +163,16 @@ cpp_chapters: split_chapters
 
 diffs: split_chapters java_chapters
 	@ mkdir -p build/diffs
-	@ -diff --recursive --new-file nonexistent/ gen/chap04_scanning/com/craftinginterpreters/ > build/diffs/chap04_scanning.diff
-	@ -diff --recursive --new-file gen/chap04_scanning/com/craftinginterpreters/ gen/chap05_representing/com/craftinginterpreters/ > build/diffs/chap05_representing.diff
-	@ -diff --recursive --new-file gen/chap05_representing/com/craftinginterpreters/ gen/chap06_parsing/com/craftinginterpreters/ > build/diffs/chap06_parsing.diff
-	@ -diff --recursive --new-file gen/chap06_parsing/com/craftinginterpreters/ gen/chap07_evaluating/com/craftinginterpreters/ > build/diffs/chap07_evaluating.diff
-	@ -diff --recursive --new-file gen/chap07_evaluating/com/craftinginterpreters/ gen/chap08_statements/com/craftinginterpreters/ > build/diffs/chap08_statements.diff
-	@ -diff --recursive --new-file gen/chap08_statements/com/craftinginterpreters/ gen/chap09_control/com/craftinginterpreters/ > build/diffs/chap09_control.diff
-	@ -diff --recursive --new-file gen/chap09_control/com/craftinginterpreters/ gen/chap10_functions/com/craftinginterpreters/ > build/diffs/chap10_functions.diff
-	@ -diff --recursive --new-file gen/chap10_functions/com/craftinginterpreters/ gen/chap11_resolving/com/craftinginterpreters/ > build/diffs/chap11_resolving.diff
-	@ -diff --recursive --new-file gen/chap11_resolving/com/craftinginterpreters/ gen/chap12_classes/com/craftinginterpreters/ > build/diffs/chap12_classes.diff
-	@ -diff --recursive --new-file gen/chap12_classes/com/craftinginterpreters/ gen/chap13_inheritance/com/craftinginterpreters/ > build/diffs/chap13_inheritance.diff
+	@ -diff --recursive --new-file nonexistent/ gen/chap04_scanning/com/itsrainingmani/ > build/diffs/chap04_scanning.diff
+	@ -diff --recursive --new-file gen/chap04_scanning/com/itsrainingmani/ gen/chap05_representing/com/itsrainingmani/ > build/diffs/chap05_representing.diff
+	@ -diff --recursive --new-file gen/chap05_representing/com/itsrainingmani/ gen/chap06_parsing/com/itsrainingmani/ > build/diffs/chap06_parsing.diff
+	@ -diff --recursive --new-file gen/chap06_parsing/com/itsrainingmani/ gen/chap07_evaluating/com/itsrainingmani/ > build/diffs/chap07_evaluating.diff
+	@ -diff --recursive --new-file gen/chap07_evaluating/com/itsrainingmani/ gen/chap08_statements/com/itsrainingmani/ > build/diffs/chap08_statements.diff
+	@ -diff --recursive --new-file gen/chap08_statements/com/itsrainingmani/ gen/chap09_control/com/itsrainingmani/ > build/diffs/chap09_control.diff
+	@ -diff --recursive --new-file gen/chap09_control/com/itsrainingmani/ gen/chap10_functions/com/itsrainingmani/ > build/diffs/chap10_functions.diff
+	@ -diff --recursive --new-file gen/chap10_functions/com/itsrainingmani/ gen/chap11_resolving/com/itsrainingmani/ > build/diffs/chap11_resolving.diff
+	@ -diff --recursive --new-file gen/chap11_resolving/com/itsrainingmani/ gen/chap12_classes/com/itsrainingmani/ > build/diffs/chap12_classes.diff
+	@ -diff --recursive --new-file gen/chap12_classes/com/itsrainingmani/ gen/chap13_inheritance/com/itsrainingmani/ > build/diffs/chap13_inheritance.diff
 
 	@ -diff --new-file nonexistent/ gen/chap14_chunks/ > build/diffs/chap14_chunks.diff
 	@ -diff --new-file gen/chap14_chunks/ gen/chap15_virtual/ > build/diffs/chap15_virtual.diff

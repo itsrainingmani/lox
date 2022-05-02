@@ -28,8 +28,8 @@ Future<void> _splitSourceFile(Book book, Page chapter, String sourcePath,
   var relative = p.relative(sourcePath, from: chapter.language);
 
   // Don't split the generated files.
-  if (relative == "com/craftinginterpreters/lox/Expr.java") return;
-  if (relative == "com/craftinginterpreters/lox/Stmt.java") return;
+  if (relative == "com/itsrainingmani/lox/Expr.java") return;
+  if (relative == "com/itsrainingmani/lox/Stmt.java") return;
 
   var package = chapter.shortName;
   if (tag != null) {

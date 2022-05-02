@@ -196,7 +196,7 @@ class SourceFile {
 
   String get language => path.endsWith("java") ? "java" : "c";
 
-  String get nicePath => path.replaceAll("com/craftinginterpreters/", "");
+  String get nicePath => path.replaceAll("com/itsrainingmani/", "");
 }
 
 /// A line of code in a [SourceFile] and the metadata for it.
