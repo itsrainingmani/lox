@@ -6,7 +6,12 @@ import java.util.List;
 import static com.itsrainingmani.lox.TokenType.*;
 
 /*
-program        → statement* EOF ;
+program        → declaration* EOF ;
+
+declaration    → varDecl
+               | statement;
+
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement      → exprStmt
                | printStmt ;
@@ -21,8 +26,10 @@ term           → factor ( ( "-" | "+" ) factor )* ;
 factor         → unary ( ( "/" | "*" ) unary )* ;
 unary          → ( "!" | "-" ) unary
                | primary ;
-primary        → NUMBER | STRING | "true" | "false" | "nil"
-               | "(" expression ")" ;
+primary        → "true" | "false" | "nil"
+               | NUMBER | STRING
+               | "(" expression ")"
+               | IDENTIFIER ;
 */
 // A recursive descent parser is a literal translation of the grammar’s rules straight into imperative code. 
 // Each grammar rules becomes a method inside the Parser class
