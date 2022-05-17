@@ -6,8 +6,12 @@ import com.itsrainingmani.lox.Expr.Binary;
 import com.itsrainingmani.lox.Expr.Grouping;
 import com.itsrainingmani.lox.Expr.Literal;
 import com.itsrainingmani.lox.Expr.Unary;
+import com.itsrainingmani.lox.Expr.Variable;
+import com.itsrainingmani.lox.Stmt.Var;
 
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+
+  private Environment environment = new Environment();
 
   /*
    * The evaluation recursively traverses the tree. We can't
@@ -185,5 +189,21 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     Object value = evaluate(stmt.expression);
     System.out.println(stringify(value));
     return null;
+  }
+
+  @Override
+  public Void visitVarStmt(Var stmt) {
+    Object value = null;
+    if (stmt.initializer != null) {
+      value = evaluate(stmt.initializer);
+    }
+
+    environment.define(stmt.name.lexeme, value);
+    return null;
+  }
+
+  @Override
+  public Object visitVariableExpr(Variable expr) {
+    return environment.get(expr.name);
   }
 }
