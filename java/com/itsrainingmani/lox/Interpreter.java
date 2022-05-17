@@ -1,5 +1,7 @@
 package com.itsrainingmani.lox;
 
+import java.util.List;
+
 import com.itsrainingmani.lox.Expr.Binary;
 import com.itsrainingmani.lox.Expr.Grouping;
 import com.itsrainingmani.lox.Expr.Literal;
@@ -15,10 +17,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
    * doing its own work
    */
 
-  void interpret(Expr expression) {
+  void interpret(List<Stmt> statmenets) {
     try {
-      Object value = evaluate(expression);
-      System.out.println(stringify(value));
+      for (Stmt statement : statmenets) {
+        execute(statement);
+      }
     } catch (RuntimeError error) {
       Lox.runtimeError(error);
     }
@@ -117,6 +120,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     // This helper method simply sends the expression back
     // into the interpreter's visitor implementation
     return expr.accept(this);
+  }
+
+  private void execute(Stmt stmt) {
+    stmt.accept(this);
   }
 
   private boolean isTruthy(Object object) {
