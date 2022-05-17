@@ -5,7 +5,7 @@ import com.itsrainingmani.lox.Expr.Grouping;
 import com.itsrainingmani.lox.Expr.Literal;
 import com.itsrainingmani.lox.Expr.Unary;
 
-class Interpreter implements Expr.Visitor<Object> {
+class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
   /*
    * The evaluation recursively traverses the tree. We can't
@@ -163,5 +163,20 @@ class Interpreter implements Expr.Visitor<Object> {
     }
 
     return object.toString();
+  }
+
+  @Override
+  public Void visitExpressionStmt(Stmt.Expression stmt) {
+    // unlike expressions, statmenets produce no values. so the return type
+    // of the visit methods is Void, not Object
+    evaluate(stmt.expression);
+    return null;
+  }
+
+  @Override
+  public Void visitPrintStmt(Stmt.Print stmt) {
+    Object value = evaluate(stmt.expression);
+    System.out.println(stringify(value));
+    return null;
   }
 }
