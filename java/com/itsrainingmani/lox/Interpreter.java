@@ -2,6 +2,7 @@ package com.itsrainingmani.lox;
 
 import java.util.List;
 
+import com.itsrainingmani.lox.Expr.Assign;
 import com.itsrainingmani.lox.Expr.Binary;
 import com.itsrainingmani.lox.Expr.Grouping;
 import com.itsrainingmani.lox.Expr.Literal;
@@ -205,5 +206,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   @Override
   public Object visitVariableExpr(Variable expr) {
     return environment.get(expr.name);
+  }
+
+  @Override
+  public Object visitAssignExpr(Assign expr) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }
