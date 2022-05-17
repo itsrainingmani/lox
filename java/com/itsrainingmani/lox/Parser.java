@@ -1,10 +1,19 @@
 package com.itsrainingmani.lox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.itsrainingmani.lox.TokenType.*;
 
 /*
+program        → statement* EOF ;
+
+statement      → exprStmt
+               | printStmt ;
+
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
+
 expression     → equality ;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
@@ -18,12 +27,13 @@ primary        → NUMBER | STRING | "true" | "false" | "nil"
 // A recursive descent parser is a literal translation of the grammar’s rules straight into imperative code. 
 // Each grammar rules becomes a method inside the Parser class
 class Parser {
-  Expr parse() {
-    try {
-      return expression();
-    } catch (ParseError error) {
-      return null;
+  List<Stmt> parse() {
+    List<Stmt> statements = new ArrayList<>();
+    while (!isAtEnd()) {
+      statements.add(statement());
     }
+
+    return statements;
   }
 
   private static class ParseError extends RuntimeException {
@@ -38,6 +48,28 @@ class Parser {
 
   private Expr expression() {
     return equality();
+  }
+
+  private Stmt statement() {
+    if (match(PRINT))
+      return printStatement();
+
+    return expressionStatement();
+  }
+
+  private Stmt printStatement() {
+    Expr value = expression();
+    consume(SEMICOLON, "Expect ';' after value.");
+    return new Stmt.Print(value);
+  }
+
+  // Lets you place an expression where a statement is expected
+  // They exist to evaluate expressions that have side effects
+  // Any time you see a function or method call followed by a ;
+  private Stmt expressionStatement() {
+    Expr expr = expression();
+    consume(SEMICOLON, "Expect ';' after value.");
+    return new Stmt.Expression(expr);
   }
 
   private Expr equality() {
