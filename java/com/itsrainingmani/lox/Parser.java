@@ -1,6 +1,7 @@
 package com.itsrainingmani.lox;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.itsrainingmani.lox.TokenType.*;
@@ -14,12 +15,16 @@ declaration    → varDecl
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement      → exprStmt
+               | forStmt
                | ifStmt
                | printStmt
                | whileStmt
                | block ;
 
 exprStmt       → expression ";" ;
+forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
+                 expression? ";"
+                 expression? ")" statement ;
 ifStmt         → "if" "(" expression ")" statement
                ( "else" statement)? ;
 printStmt      → "print" expression ";" ;
@@ -101,6 +106,8 @@ class Parser {
   }
 
   private Stmt statement() {
+    if (match(FOR))
+      return forStatement();
     if (match(IF))
       return ifStatement();
     if (match(PRINT))
@@ -111,6 +118,51 @@ class Parser {
       return new Stmt.Block(block());
 
     return expressionStatement();
+  }
+
+  private Stmt forStatement() {
+    consume(LEFT_PAREN, "Expect '(' after 'for'.");
+
+    // it is possible in the grammar to have a place
+    // where we can have an expression and a statement
+    Stmt initializer;
+    if (match(SEMICOLON)) {
+      initializer = null;
+    } else if (match(VAR)) {
+      initializer = varDeclaration();
+    } else {
+      initializer = expressionStatement();
+    }
+
+    // we look for a semicolon to see if the clause has been omitted
+    Expr condition = null;
+    if (!check(SEMICOLON)) {
+      condition = expression();
+    }
+    consume(SEMICOLON, "Expect ';' after loop condition.");
+
+    Expr increment = null;
+    if (!check(RIGHT_PAREN)) {
+      increment = expression();
+    }
+    consume(RIGHT_PAREN, "Expect ')' after for clauses.");
+
+    Stmt body = statement();
+
+    if (increment != null) {
+      body = new Stmt.Block(
+          Arrays.asList(body, new Stmt.Expression(increment)));
+    }
+
+    if (condition == null)
+      condition = new Expr.Literal(true);
+    body = new Stmt.While(condition, body);
+
+    if (initializer != null) {
+      body = new Stmt.Block(Arrays.asList(initializer, body));
+    }
+
+    return body;
   }
 
   private Stmt ifStatement() {
