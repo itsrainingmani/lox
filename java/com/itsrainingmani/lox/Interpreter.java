@@ -9,6 +9,7 @@ import com.itsrainingmani.lox.Expr.Literal;
 import com.itsrainingmani.lox.Expr.Unary;
 import com.itsrainingmani.lox.Expr.Variable;
 import com.itsrainingmani.lox.Stmt.Block;
+import com.itsrainingmani.lox.Stmt.If;
 import com.itsrainingmani.lox.Stmt.Var;
 
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
@@ -247,6 +248,17 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   @Override
   public Void visitBlockStmt(Block stmt) {
     executeBlock(stmt.statements, new Environment(environment));
+    return null;
+  }
+
+  @Override
+  public Void visitIfStmt(If stmt) {
+    if (isTruthy(evaluate(stmt.condition))) {
+      execute(stmt.thenBranch);
+    } else if (stmt.elseBranch != null) {
+      execute(stmt.elseBranch);
+    }
+
     return null;
   }
 }
