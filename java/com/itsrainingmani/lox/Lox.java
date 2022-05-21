@@ -43,12 +43,27 @@ public class Lox {
     BufferedReader reader = new BufferedReader(input);
 
     for (;;) {
-      System.out.println("> ");
-      String line = reader.readLine();
-      if (line == null)
-        break;
-      run(line);
       hadError = false;
+
+      System.out.println("> ");
+      Scanner scanner = new Scanner(reader.readLine());
+      List<Token> tokens = scanner.scanTokens();
+
+      Parser parser = new Parser(tokens);
+      Object syntax = parser.parseRepl();
+
+      // Ignore it if there was a syntax error
+      if (hadError)
+        continue;
+
+      if (syntax instanceof List) {
+        interpreter.interpret((List<Stmt>) syntax);
+      } else if (syntax instanceof Expr) {
+        String result = interpreter.interpret((Expr) syntax);
+        if (result != null) {
+          System.out.println("= " + result);
+        }
+      }
     }
   }
 

@@ -39,6 +39,36 @@ primary        → "true" | "false" | "nil"
 // A recursive descent parser is a literal translation of the grammar’s rules straight into imperative code. 
 // Each grammar rules becomes a method inside the Parser class
 class Parser {
+  private boolean allowExpression;
+  private boolean foundExpression = false;
+
+  private final List<Token> tokens;
+  private int current = 0;
+
+  private static class ParseError extends RuntimeException {
+  }
+
+  Parser(List<Token> tokens) {
+    this.tokens = tokens;
+  }
+
+  Object parseRepl() {
+    allowExpression = true;
+    List<Stmt> statements = new ArrayList<>();
+    while (!isAtEnd()) {
+      statements.add(declaration());
+
+      if (foundExpression) {
+        Stmt last = statements.get(statements.size() - 1);
+        return ((Stmt.Expression) last).expression;
+      }
+
+      allowExpression = false;
+    }
+
+    return statements;
+  }
+
   List<Stmt> parse() {
     List<Stmt> statements = new ArrayList<>();
     while (!isAtEnd()) {
@@ -46,16 +76,6 @@ class Parser {
     }
 
     return statements;
-  }
-
-  private static class ParseError extends RuntimeException {
-  }
-
-  private final List<Token> tokens;
-  private int current = 0;
-
-  Parser(List<Token> tokens) {
-    this.tokens = tokens;
   }
 
   private Expr expression() {
@@ -103,10 +123,15 @@ class Parser {
 
   // Lets you place an expression where a statement is expected
   // They exist to evaluate expressions that have side effects
-  // Any time you see a function or method call followed by a ;
+  // Any time you see a function or method call followed by a ';'
   private Stmt expressionStatement() {
     Expr expr = expression();
-    consume(SEMICOLON, "Expect ';' after value.");
+
+    if (allowExpression && isAtEnd()) {
+      foundExpression = true;
+    } else {
+      consume(SEMICOLON, "Expect ';' after value.");
+    }
     return new Stmt.Expression(expr);
   }
 
