@@ -6,6 +6,7 @@ import com.itsrainingmani.lox.Expr.Assign;
 import com.itsrainingmani.lox.Expr.Binary;
 import com.itsrainingmani.lox.Expr.Grouping;
 import com.itsrainingmani.lox.Expr.Literal;
+import com.itsrainingmani.lox.Expr.Logical;
 import com.itsrainingmani.lox.Expr.Unary;
 import com.itsrainingmani.lox.Expr.Variable;
 import com.itsrainingmani.lox.Stmt.Block;
@@ -47,6 +48,21 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   @Override
   public Object visitLiteralExpr(Literal expr) {
     return expr.value;
+  }
+
+  @Override
+  public Object visitLogicalExpr(Logical expr) {
+    Object left = evaluate(expr.left);
+
+    if (expr.operator.type == TokenType.OR) {
+      if (isTruthy(left))
+        return left;
+    } else {
+      if (!isTruthy(left))
+        return left;
+    }
+
+    return evaluate(expr.right);
   }
 
   @Override
