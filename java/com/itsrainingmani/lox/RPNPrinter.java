@@ -55,4 +55,10 @@ class RPNPrinter implements Expr.Visitor<String> {
     // TODO Auto-generated method stub
     return null;
   }
+
+  @Override
+  public String visitLogicalExpr(Expr.Logical expr) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }
