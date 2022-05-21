@@ -4,7 +4,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 class Environment {
+
+  // Each environment has a reference to the environment of the immediately
+  // enclosing scope. When we look up a variable, we walk that chain from
+  // innermost out until we find the variable. Starting at the inner scope
+  // is how we make local variables shadow outer ones
+  final Environment enclosing;
   private final Map<String, Object> values = new HashMap<>();
+
+  Environment() {
+    enclosing = null;
+  }
+
+  Environment(Environment enclosing) {
+    this.enclosing = enclosing;
+  }
 
   void define(String name, Object value) {
     values.put(name, value);
@@ -15,6 +29,11 @@ class Environment {
       return values.get(name.lexeme);
     }
 
+    // Probably faster to iteratively walk this chain
+    // but we're going recursive here for now
+    if (enclosing != null)
+      return enclosing.get(name);
+
     throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
   }
 
@@ -23,6 +42,11 @@ class Environment {
   void assign(Token name, Object value) {
     if (values.containsKey(name.lexeme)) {
       values.put(name.lexeme, value);
+      return;
+    }
+
+    if (enclosing != null) {
+      enclosing.assign(name, value);
       return;
     }
 
