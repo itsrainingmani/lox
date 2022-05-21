@@ -43,4 +43,16 @@ class RPNPrinter implements Expr.Visitor<String> {
 
     System.out.println(new RPNPrinter().print(expression));
   }
+
+  @Override
+  public String visitAssignExpr(Expr.Assign expr) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String visitVariableExpr(Expr.Variable expr) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }
