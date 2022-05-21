@@ -17,4 +17,15 @@ class Environment {
 
     throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
   }
+
+  // Key difference between assignment and definition is that assignment is not
+  // allowed to create a new variable
+  void assign(Token name, Object value) {
+    if (values.containsKey(name.lexeme)) {
+      values.put(name.lexeme, value);
+      return;
+    }
+
+    throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
+  }
 }
