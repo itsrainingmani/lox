@@ -8,6 +8,7 @@ import com.itsrainingmani.lox.Expr.Grouping;
 import com.itsrainingmani.lox.Expr.Literal;
 import com.itsrainingmani.lox.Expr.Unary;
 import com.itsrainingmani.lox.Expr.Variable;
+import com.itsrainingmani.lox.Stmt.Block;
 import com.itsrainingmani.lox.Stmt.Var;
 
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
@@ -131,6 +132,24 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     stmt.accept(this);
   }
 
+  // This method executes a list of statements in the context of a given
+  // environment
+  // Up till now, the environment field in Interpreter always pointed to the
+  // global
+  // env. But now it represents the current environment
+  void executeBlock(List<Stmt> statements, Environment environment) {
+    Environment previous = this.environment;
+    try {
+      this.environment = environment;
+
+      for (Stmt statement : statements) {
+        execute(statement);
+      }
+    } finally {
+      this.environment = previous;
+    }
+  }
+
   private boolean isTruthy(Object object) {
     /*
      * Truthiness in Lox
@@ -213,5 +232,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     Object value = evaluate(expr);
     environment.assign(expr.name, value);
     return value;
+  }
+
+  @Override
+  public Void visitBlockStmt(Block stmt) {
+    executeBlock(stmt.statements, new Environment(environment));
+    return null;
   }
 }
