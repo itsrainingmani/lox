@@ -19,7 +19,8 @@ statement      → exprStmt
                | ifStmt
                | printStmt
                | whileStmt
-               | block ;
+               | block
+               | break ;
 
 exprStmt       → expression ";" ;
 forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
@@ -30,6 +31,7 @@ ifStmt         → "if" "(" expression ")" statement
 printStmt      → "print" expression ";" ;
 whileStmt      → "while" "(" expression ")" statement;
 block          → "{" declaration* "}" ;
+break          → "break" ;
 
 expression     → assignment ;
 assignment     → IDENTIFIER "=" assignment
@@ -114,6 +116,8 @@ class Parser {
       return printStatement();
     if (match(WHILE))
       return whileStatement();
+    if (match(BREAK))
+      return breakStatement();
     if (match(LEFT_BRACE))
       return new Stmt.Block(block());
 
@@ -192,6 +196,11 @@ class Parser {
     Stmt body = statement();
 
     return new Stmt.While(condition, body);
+  }
+
+  private Stmt breakStatement() {
+    consume(SEMICOLON, "Expect ';' after value.");
+    return new Stmt.Break();
   }
 
   private Stmt varDeclaration() {
