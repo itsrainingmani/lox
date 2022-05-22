@@ -2,19 +2,6 @@ package com.itsrainingmani.lox;
 
 import java.util.List;
 
-import com.itsrainingmani.lox.Expr.Assign;
-import com.itsrainingmani.lox.Expr.Binary;
-import com.itsrainingmani.lox.Expr.Grouping;
-import com.itsrainingmani.lox.Expr.Literal;
-import com.itsrainingmani.lox.Expr.Logical;
-import com.itsrainingmani.lox.Expr.Unary;
-import com.itsrainingmani.lox.Expr.Variable;
-import com.itsrainingmani.lox.Stmt.Block;
-import com.itsrainingmani.lox.Stmt.Break;
-import com.itsrainingmani.lox.Stmt.If;
-import com.itsrainingmani.lox.Stmt.Var;
-import com.itsrainingmani.lox.Stmt.While;
-
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
   private Environment environment = new Environment();
@@ -51,12 +38,12 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Object visitLiteralExpr(Literal expr) {
+  public Object visitLiteralExpr(Expr.Literal expr) {
     return expr.value;
   }
 
   @Override
-  public Object visitLogicalExpr(Logical expr) {
+  public Object visitLogicalExpr(Expr.Logical expr) {
     Object left = evaluate(expr.left);
 
     if (expr.operator.type == TokenType.OR) {
@@ -71,7 +58,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Object visitGroupingExpr(Grouping expr) {
+  public Object visitGroupingExpr(Expr.Grouping expr) {
     // A Grouping node has a reference to an inner node for the expression
     // contained inside the parantheses. To evaluate the grouping expr itself
     // we recursively evalute that subexpression and return it
@@ -80,7 +67,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Object visitUnaryExpr(Unary expr) {
+  public Object visitUnaryExpr(Expr.Unary expr) {
     Object right = evaluate(expr.right);
 
     switch (expr.operator.type) {
@@ -102,7 +89,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Object visitBinaryExpr(Binary expr) {
+  public Object visitBinaryExpr(Expr.Binary expr) {
     Object left = evaluate(expr.left);
     Object right = evaluate(expr.right);
 
@@ -244,7 +231,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitVarStmt(Var stmt) {
+  public Void visitVarStmt(Stmt.Var stmt) {
     Object value = null;
     if (stmt.initializer != null) {
       value = evaluate(stmt.initializer);
@@ -255,7 +242,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitWhileStmt(While stmt) {
+  public Void visitWhileStmt(Stmt.While stmt) {
     try {
       while (isTruthy(evaluate(stmt.condition))) {
         execute(stmt.body);
@@ -266,30 +253,30 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
 
   @Override
-  public Void visitBreakStmt(Break stmt) {
+  public Void visitBreakStmt(Stmt.Break stmt) {
     throw new BreakException();
   }
 
   @Override
-  public Object visitVariableExpr(Variable expr) {
+  public Object visitVariableExpr(Expr.Variable expr) {
     return environment.get(expr.name);
   }
 
   @Override
-  public Object visitAssignExpr(Assign expr) {
+  public Object visitAssignExpr(Expr.Assign expr) {
     Object value = evaluate(expr.value);
     environment.assign(expr.name, value);
     return value;
   }
 
   @Override
-  public Void visitBlockStmt(Block stmt) {
+  public Void visitBlockStmt(Stmt.Block stmt) {
     executeBlock(stmt.statements, new Environment(environment));
     return null;
   }
 
   @Override
-  public Void visitIfStmt(If stmt) {
+  public Void visitIfStmt(Stmt.If stmt) {
     if (isTruthy(evaluate(stmt.condition))) {
       execute(stmt.thenBranch);
     } else if (stmt.elseBranch != null) {
