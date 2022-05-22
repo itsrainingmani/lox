@@ -10,6 +10,7 @@ import com.itsrainingmani.lox.Expr.Logical;
 import com.itsrainingmani.lox.Expr.Unary;
 import com.itsrainingmani.lox.Expr.Variable;
 import com.itsrainingmani.lox.Stmt.Block;
+import com.itsrainingmani.lox.Stmt.Break;
 import com.itsrainingmani.lox.Stmt.If;
 import com.itsrainingmani.lox.Stmt.Var;
 import com.itsrainingmani.lox.Stmt.While;
@@ -25,6 +26,9 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
    * POST-ORDER TRAVERSAL - each node evaluates its children before
    * doing its own work
    */
+
+  private static class BreakException extends RuntimeException {
+  }
 
   void interpret(List<Stmt> statmenets) {
     try {
@@ -252,10 +256,18 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitWhileStmt(While stmt) {
-    while (isTruthy(evaluate(stmt.condition))) {
-      execute(stmt.body);
+    try {
+      while (isTruthy(evaluate(stmt.condition))) {
+        execute(stmt.body);
+      }
+    } catch (BreakException ex) {
     }
     return null;
+  }
+
+  @Override
+  public Void visitBreakStmt(Break stmt) {
+    throw new BreakException();
   }
 
   @Override
