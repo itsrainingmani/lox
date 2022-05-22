@@ -58,6 +58,11 @@ class Parser {
   private final List<Token> tokens;
   private int current = 0;
 
+  // should be a syntax error to use "break" outside a loop
+  // we can do this by maintaining a field in the parser that
+  // tracks how many enclosing loops there currently are
+  private int loopDepth = 0;
+
   private static class ParseError extends RuntimeException {
   }
 
@@ -153,20 +158,26 @@ class Parser {
 
     Stmt body = statement();
 
-    if (increment != null) {
-      body = new Stmt.Block(
-          Arrays.asList(body, new Stmt.Expression(increment)));
+    try {
+      loopDepth++;
+      if (increment != null) {
+        body = new Stmt.Block(
+            Arrays.asList(body, new Stmt.Expression(increment)));
+      }
+
+      if (condition == null)
+        condition = new Expr.Literal(true);
+      body = new Stmt.While(condition, body);
+
+      if (initializer != null) {
+        body = new Stmt.Block(Arrays.asList(initializer, body));
+      }
+
+      return body;
+    } finally {
+      loopDepth--;
     }
 
-    if (condition == null)
-      condition = new Expr.Literal(true);
-    body = new Stmt.While(condition, body);
-
-    if (initializer != null) {
-      body = new Stmt.Block(Arrays.asList(initializer, body));
-    }
-
-    return body;
   }
 
   private Stmt ifStatement() {
@@ -193,12 +204,22 @@ class Parser {
     consume(LEFT_PAREN, "Expect '(' after 'while'.");
     Expr condition = expression();
     consume(RIGHT_PAREN, "Expect ')' after 'condition'.");
-    Stmt body = statement();
 
-    return new Stmt.While(condition, body);
+    try {
+      loopDepth++;
+      Stmt body = statement();
+
+      return new Stmt.While(condition, body);
+    } finally {
+      loopDepth--;
+    }
   }
 
   private Stmt breakStatement() {
+    if (loopDepth == 0) {
+      error(previous(), "Must be inside a loop to use 'break'.");
+    }
+
     consume(SEMICOLON, "Expect ';' after value.");
     return new Stmt.Break();
   }
