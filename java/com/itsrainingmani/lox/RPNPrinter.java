@@ -67,4 +67,10 @@ class RPNPrinter implements Expr.Visitor<String> {
     // TODO Auto-generated method stub
     return null;
   }
+
+  @Override
+  public String visitFunctionExpr(Expr.Function expr) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }
