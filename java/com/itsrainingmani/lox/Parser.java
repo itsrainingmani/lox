@@ -54,7 +54,8 @@ arguments      → expression ( ", " expression )* ;
 primary        → "true" | "false" | "nil"
                | NUMBER | STRING
                | "(" expression ")"
-               | IDENTIFIER ;
+               | IDENTIFIER 
+               | lambdaFunctions ;
 */
 // A recursive descent parser is a literal translation of the grammar’s rules straight into imperative code. 
 // Each grammar rules becomes a method inside the Parser class
@@ -274,6 +275,10 @@ class Parser {
 
   private Stmt.Function function(String kind) {
     Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
+    return new Stmt.Function(name, functionBody(kind));
+  }
+
+  private Expr.Function functionBody(String kind) {
     consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
     List<Token> parameters = new ArrayList<>();
     if (!check(RIGHT_PAREN)) {
@@ -289,7 +294,8 @@ class Parser {
 
     consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
     List<Stmt> body = block();
-    return new Stmt.Function(name, parameters, body);
+
+    return new Expr.Function(parameters, body);
   }
 
   private List<Stmt> block() {
@@ -458,6 +464,9 @@ class Parser {
       consume(RIGHT_PAREN, "Expect ')' after expression");
       return new Expr.Grouping(expr);
     }
+
+    if (match(FUN))
+      return functionBody("function");
 
     throw error(peek(), "Expect expression.");
   }
