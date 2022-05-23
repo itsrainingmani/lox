@@ -110,8 +110,13 @@ class Parser {
 
   private Stmt declaration() {
     try {
-      if (match(FUN))
+
+      // Only parse a function declaration if the current token is FUN
+      // and the next token is an identifier
+      if (check(FUN) && checkNext(IDENTIFIER)) {
+        consume(FUN, null);
         return function("function");
+      }
       if (match(VAR))
         return varDeclaration();
 
@@ -488,6 +493,13 @@ class Parser {
     if (isAtEnd())
       return false;
     return peek().type == type;
+  }
+
+  // Another token of lookahead
+  private boolean checkNext(TokenType type) {
+    if (isAtEnd() || tokens.get(current + 1).type == EOF)
+      return false;
+    return tokens.get(current + 1).type == type;
   }
 
   // The advance() method consumes the current token and returns it, similar to
