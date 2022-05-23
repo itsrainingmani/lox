@@ -41,12 +41,30 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   @Override
+  public Void visitFunctionStmt(Stmt.Function stmt) {
+    declare(stmt.name);
+    define(stmt.name);
+
+    // Since we've implemented anonymous functions, we need to resolve the
+    // underlying function expression within the named function
+    resolveFunction(stmt.function);
+    return null;
+  }
+
+  @Override
   public Void visitVarStmt(Stmt.Var stmt) {
     declare(stmt.name);
     if (stmt.initializer != null) {
       resolve(stmt.initializer);
     }
     define(stmt.name);
+    return null;
+  }
+
+  @Override
+  public Void visitAssignExpr(Expr.Assign expr) {
+    resolve(expr.value);
+    resolveLocal(expr, expr.name);
     return null;
   }
 
@@ -66,6 +84,16 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   private void resolve(Expr expr) {
     expr.accept(this);
+  }
+
+  private void resolveFunction(Expr.Function function) {
+    beginScope();
+    for (Token param : function.parameters) {
+      declare(param);
+      define(param);
+    }
+    resolve(function.body);
+    endScope();
   }
 
   private void beginScope() {
