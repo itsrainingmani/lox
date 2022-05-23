@@ -269,7 +269,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitFunctionStmt(Stmt.Function stmt) {
-    LoxFunction function = new LoxFunction(stmt);
+    // This is the environment that is active when the function
+    // is declared. Not when it's called. It represents the lexical scope
+    // surrounding the function declaration
+    LoxFunction function = new LoxFunction(stmt, environment);
     environment.define(stmt.name.lexeme, function);
     return null;
   }
