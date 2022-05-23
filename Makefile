@@ -3,7 +3,7 @@ TOOL_SOURCES := tool/pubspec.lock $(shell find tool -name '*.dart')
 BUILD_SNAPSHOT := $(BUILD_DIR)/build.dart.snapshot
 TEST_SNAPSHOT := $(BUILD_DIR)/test.dart.snapshot
 
-default: book clox jlox
+default: clox jlox
 
 # Run dart pub get on tool directory.
 get:
@@ -13,14 +13,6 @@ get:
 clean:
 	@ rm -rf $(BUILD_DIR)
 	@ rm -rf gen
-
-# Build the site.
-book: $(BUILD_SNAPSHOT)
-	@ dart $(BUILD_SNAPSHOT)
-
-# Run a local development server for the site that rebuilds automatically.
-serve: $(BUILD_SNAPSHOT)
-	@ dart $(BUILD_SNAPSHOT) --serve
 
 $(BUILD_SNAPSHOT): $(TOOL_SOURCES)
 	@ mkdir -p build
@@ -39,18 +31,6 @@ test_clox: debug $(TEST_SNAPSHOT)
 # Run the tests for the final version of jlox.
 test_jlox: jlox $(TEST_SNAPSHOT)
 	@ dart $(TEST_SNAPSHOT) jlox
-
-# Run the tests for every chapter's version of clox.
-test_c: debug c_chapters $(TEST_SNAPSHOT)
-	@ dart $(TEST_SNAPSHOT) c
-
-# Run the tests for every chapter's version of jlox.
-test_java: jlox java_chapters $(TEST_SNAPSHOT)
-	@ dart $(TEST_SNAPSHOT) java
-
-# Run the tests for every chapter's version of clox and jlox.
-test_all: debug jlox c_chapters java_chapters compile_snippets $(TEST_SNAPSHOT)
-	@ dart $(TEST_SNAPSHOT) all
 
 $(TEST_SNAPSHOT): $(TOOL_SOURCES)
 	@ mkdir -p build
@@ -83,124 +63,6 @@ jlox: generate_ast
 run_generate_ast = @ java -cp build/gen/$(1) \
 			com.itsrainingmani.tool.GenerateAst \
 			gen/$(1)/com/itsrainingmani/lox
-
-java_chapters: split_chapters
-	@ $(MAKE) -f util/java.make DIR=gen/chap04_scanning PACKAGE=lox
-
-	@ $(MAKE) -f util/java.make DIR=gen/chap05_representing PACKAGE=tool
-	$(call run_generate_ast,chap05_representing)
-	@ $(MAKE) -f util/java.make DIR=gen/chap05_representing PACKAGE=lox
-
-	@ $(MAKE) -f util/java.make DIR=gen/chap06_parsing PACKAGE=tool
-	$(call run_generate_ast,chap06_parsing)
-	@ $(MAKE) -f util/java.make DIR=gen/chap06_parsing PACKAGE=lox
-
-	@ $(MAKE) -f util/java.make DIR=gen/chap07_evaluating PACKAGE=tool
-	$(call run_generate_ast,chap07_evaluating)
-	@ $(MAKE) -f util/java.make DIR=gen/chap07_evaluating PACKAGE=lox
-
-	@ $(MAKE) -f util/java.make DIR=gen/chap08_statements PACKAGE=tool
-	$(call run_generate_ast,chap08_statements)
-	@ $(MAKE) -f util/java.make DIR=gen/chap08_statements PACKAGE=lox
-
-	@ $(MAKE) -f util/java.make DIR=gen/chap09_control PACKAGE=tool
-	$(call run_generate_ast,chap09_control)
-	@ $(MAKE) -f util/java.make DIR=gen/chap09_control PACKAGE=lox
-
-	@ $(MAKE) -f util/java.make DIR=gen/chap10_functions PACKAGE=tool
-	$(call run_generate_ast,chap10_functions)
-	@ $(MAKE) -f util/java.make DIR=gen/chap10_functions PACKAGE=lox
-
-	@ $(MAKE) -f util/java.make DIR=gen/chap11_resolving PACKAGE=tool
-	$(call run_generate_ast,chap11_resolving)
-	@ $(MAKE) -f util/java.make DIR=gen/chap11_resolving PACKAGE=lox
-
-	@ $(MAKE) -f util/java.make DIR=gen/chap12_classes PACKAGE=tool
-	$(call run_generate_ast,chap12_classes)
-	@ $(MAKE) -f util/java.make DIR=gen/chap12_classes PACKAGE=lox
-
-	@ $(MAKE) -f util/java.make DIR=gen/chap13_inheritance PACKAGE=tool
-	$(call run_generate_ast,chap13_inheritance)
-	@ $(MAKE) -f util/java.make DIR=gen/chap13_inheritance PACKAGE=lox
-
-c_chapters: split_chapters
-	@ $(MAKE) -f util/c.make NAME=chap14_chunks MODE=release SOURCE_DIR=gen/chap14_chunks
-	@ $(MAKE) -f util/c.make NAME=chap15_virtual MODE=release SOURCE_DIR=gen/chap15_virtual
-	@ $(MAKE) -f util/c.make NAME=chap16_scanning MODE=release SOURCE_DIR=gen/chap16_scanning
-	@ $(MAKE) -f util/c.make NAME=chap17_compiling MODE=release SOURCE_DIR=gen/chap17_compiling
-	@ $(MAKE) -f util/c.make NAME=chap18_types MODE=release SOURCE_DIR=gen/chap18_types
-	@ $(MAKE) -f util/c.make NAME=chap19_strings MODE=release SOURCE_DIR=gen/chap19_strings
-	@ $(MAKE) -f util/c.make NAME=chap20_hash MODE=release SOURCE_DIR=gen/chap20_hash
-	@ $(MAKE) -f util/c.make NAME=chap21_global MODE=release SOURCE_DIR=gen/chap21_global
-	@ $(MAKE) -f util/c.make NAME=chap22_local MODE=release SOURCE_DIR=gen/chap22_local
-	@ $(MAKE) -f util/c.make NAME=chap23_jumping MODE=release SOURCE_DIR=gen/chap23_jumping
-	@ $(MAKE) -f util/c.make NAME=chap24_calls MODE=release SOURCE_DIR=gen/chap24_calls
-	@ $(MAKE) -f util/c.make NAME=chap25_closures MODE=release SOURCE_DIR=gen/chap25_closures
-	@ $(MAKE) -f util/c.make NAME=chap26_garbage MODE=release SOURCE_DIR=gen/chap26_garbage
-	@ $(MAKE) -f util/c.make NAME=chap27_classes MODE=release SOURCE_DIR=gen/chap27_classes
-	@ $(MAKE) -f util/c.make NAME=chap28_methods MODE=release SOURCE_DIR=gen/chap28_methods
-	@ $(MAKE) -f util/c.make NAME=chap29_superclasses MODE=release SOURCE_DIR=gen/chap29_superclasses
-	@ $(MAKE) -f util/c.make NAME=chap30_optimization MODE=release SOURCE_DIR=gen/chap30_optimization
-
-cpp_chapters: split_chapters
-	@ $(MAKE) -f util/c.make NAME=cpp_chap14_chunks MODE=release CPP=true SOURCE_DIR=gen/chap14_chunks
-	@ $(MAKE) -f util/c.make NAME=cpp_chap15_virtual MODE=release CPP=true SOURCE_DIR=gen/chap15_virtual
-	@ $(MAKE) -f util/c.make NAME=cpp_chap16_scanning MODE=release CPP=true SOURCE_DIR=gen/chap16_scanning
-	@ $(MAKE) -f util/c.make NAME=cpp_chap17_compiling MODE=release CPP=true SOURCE_DIR=gen/chap17_compiling
-	@ $(MAKE) -f util/c.make NAME=cpp_chap18_types MODE=release CPP=true SOURCE_DIR=gen/chap18_types
-	@ $(MAKE) -f util/c.make NAME=cpp_chap19_strings MODE=release CPP=true SOURCE_DIR=gen/chap19_strings
-	@ $(MAKE) -f util/c.make NAME=cpp_chap20_hash MODE=release CPP=true SOURCE_DIR=gen/chap20_hash
-	@ $(MAKE) -f util/c.make NAME=cpp_chap21_global MODE=release CPP=true SOURCE_DIR=gen/chap21_global
-	@ $(MAKE) -f util/c.make NAME=cpp_chap22_local MODE=release CPP=true SOURCE_DIR=gen/chap22_local
-	@ $(MAKE) -f util/c.make NAME=cpp_chap23_jumping MODE=release CPP=true SOURCE_DIR=gen/chap23_jumping
-	@ $(MAKE) -f util/c.make NAME=cpp_chap24_calls MODE=release CPP=true SOURCE_DIR=gen/chap24_calls
-	@ $(MAKE) -f util/c.make NAME=cpp_chap25_closures MODE=release CPP=true SOURCE_DIR=gen/chap25_closures
-	@ $(MAKE) -f util/c.make NAME=cpp_chap26_garbage MODE=release CPP=true SOURCE_DIR=gen/chap26_garbage
-	@ $(MAKE) -f util/c.make NAME=cpp_chap27_classes MODE=release CPP=true SOURCE_DIR=gen/chap27_classes
-	@ $(MAKE) -f util/c.make NAME=cpp_chap28_methods MODE=release CPP=true SOURCE_DIR=gen/chap28_methods
-	@ $(MAKE) -f util/c.make NAME=cpp_chap29_superclasses MODE=release CPP=true SOURCE_DIR=gen/chap29_superclasses
-	@ $(MAKE) -f util/c.make NAME=cpp_chap30_optimization MODE=release CPP=true SOURCE_DIR=gen/chap30_optimization
-
-diffs: split_chapters java_chapters
-	@ mkdir -p build/diffs
-	@ -diff --recursive --new-file nonexistent/ gen/chap04_scanning/com/itsrainingmani/ > build/diffs/chap04_scanning.diff
-	@ -diff --recursive --new-file gen/chap04_scanning/com/itsrainingmani/ gen/chap05_representing/com/itsrainingmani/ > build/diffs/chap05_representing.diff
-	@ -diff --recursive --new-file gen/chap05_representing/com/itsrainingmani/ gen/chap06_parsing/com/itsrainingmani/ > build/diffs/chap06_parsing.diff
-	@ -diff --recursive --new-file gen/chap06_parsing/com/itsrainingmani/ gen/chap07_evaluating/com/itsrainingmani/ > build/diffs/chap07_evaluating.diff
-	@ -diff --recursive --new-file gen/chap07_evaluating/com/itsrainingmani/ gen/chap08_statements/com/itsrainingmani/ > build/diffs/chap08_statements.diff
-	@ -diff --recursive --new-file gen/chap08_statements/com/itsrainingmani/ gen/chap09_control/com/itsrainingmani/ > build/diffs/chap09_control.diff
-	@ -diff --recursive --new-file gen/chap09_control/com/itsrainingmani/ gen/chap10_functions/com/itsrainingmani/ > build/diffs/chap10_functions.diff
-	@ -diff --recursive --new-file gen/chap10_functions/com/itsrainingmani/ gen/chap11_resolving/com/itsrainingmani/ > build/diffs/chap11_resolving.diff
-	@ -diff --recursive --new-file gen/chap11_resolving/com/itsrainingmani/ gen/chap12_classes/com/itsrainingmani/ > build/diffs/chap12_classes.diff
-	@ -diff --recursive --new-file gen/chap12_classes/com/itsrainingmani/ gen/chap13_inheritance/com/itsrainingmani/ > build/diffs/chap13_inheritance.diff
-
-	@ -diff --new-file nonexistent/ gen/chap14_chunks/ > build/diffs/chap14_chunks.diff
-	@ -diff --new-file gen/chap14_chunks/ gen/chap15_virtual/ > build/diffs/chap15_virtual.diff
-	@ -diff --new-file gen/chap15_virtual/ gen/chap16_scanning/ > build/diffs/chap16_scanning.diff
-	@ -diff --new-file gen/chap16_scanning/ gen/chap17_compiling/ > build/diffs/chap17_compiling.diff
-	@ -diff --new-file gen/chap17_compiling/ gen/chap18_types/ > build/diffs/chap18_types.diff
-	@ -diff --new-file gen/chap18_types/ gen/chap19_strings/ > build/diffs/chap19_strings.diff
-	@ -diff --new-file gen/chap19_strings/ gen/chap20_hash/ > build/diffs/chap20_hash.diff
-	@ -diff --new-file gen/chap20_hash/ gen/chap21_global/ > build/diffs/chap21_global.diff
-	@ -diff --new-file gen/chap21_global/ gen/chap22_local/ > build/diffs/chap22_local.diff
-	@ -diff --new-file gen/chap22_local/ gen/chap23_jumping/ > build/diffs/chap23_jumping.diff
-	@ -diff --new-file gen/chap23_jumping/ gen/chap24_calls/ > build/diffs/chap24_calls.diff
-	@ -diff --new-file gen/chap24_calls/ gen/chap25_closures/ > build/diffs/chap25_closures.diff
-	@ -diff --new-file gen/chap25_closures/ gen/chap26_garbage/ > build/diffs/chap26_garbage.diff
-	@ -diff --new-file gen/chap26_garbage/ gen/chap27_classes/ > build/diffs/chap27_classes.diff
-	@ -diff --new-file gen/chap27_classes/ gen/chap28_methods/ > build/diffs/chap28_methods.diff
-	@ -diff --new-file gen/chap28_methods/ gen/chap29_superclasses/ > build/diffs/chap29_superclasses.diff
-	@ -diff --new-file gen/chap29_superclasses/ gen/chap30_optimization/ > build/diffs/chap30_optimization.diff
-
-split_chapters:
-	@ dart tool/bin/split_chapters.dart
-
-compile_snippets:
-	@ dart tool/bin/compile_snippets.dart
-
-# Generate the XML for importing into InDesign.
-xml: $(TOOL_SOURCES)
-	@ dart --enable-asserts tool/bin/build_xml.dart
 
 .PHONY: book c_chapters clean clox compile_snippets debug default diffs \
 	get java_chapters jlox serve split_chapters test test_all test_c test_java
