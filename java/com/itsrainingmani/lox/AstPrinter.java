@@ -62,6 +62,12 @@ class AstPrinter implements Expr.Visitor<String> {
     return null;
   }
 
+  @Override
+  public String visitCallExpr(Expr.Call expr) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
   // public static void main(String[] args) {
   // Expr expression = new Expr.Binary(
   // new Expr.Unary(
