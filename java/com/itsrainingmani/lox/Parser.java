@@ -22,6 +22,7 @@ statement      → exprStmt
                | forStmt
                | ifStmt
                | printStmt
+               | returnStmt
                | whileStmt
                | block
                | break ;
@@ -33,6 +34,7 @@ forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
 ifStmt         → "if" "(" expression ")" statement
                ( "else" statement)? ;
 printStmt      → "print" expression ";" ;
+returnStmt     → "return" expression? ";" ;
 whileStmt      → "while" "(" expression ")" statement;
 block          → "{" declaration* "}" ;
 break          → "break" ;
@@ -126,6 +128,8 @@ class Parser {
       return ifStatement();
     if (match(PRINT))
       return printStatement();
+    if (match(RETURN))
+      return returnStatement();
     if (match(WHILE))
       return whileStatement();
     if (match(BREAK))
@@ -220,6 +224,17 @@ class Parser {
     } finally {
       loopDepth--;
     }
+  }
+
+  private Stmt returnStatement() {
+    Token keyword = previous();
+    Expr value = null;
+    if (!check(SEMICOLON)) {
+      value = expression();
+    }
+
+    consume(SEMICOLON, "Expect ';' after return value.");
+    return new Stmt.Return(keyword, value);
   }
 
   private Stmt breakStatement() {
