@@ -269,12 +269,18 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitFunctionStmt(Stmt.Function stmt) {
+    String fnName = stmt.name.lexeme;
+
     // This is the environment that is active when the function
     // is declared. Not when it's called. It represents the lexical scope
     // surrounding the function declaration
-    LoxFunction function = new LoxFunction(stmt, environment);
-    environment.define(stmt.name.lexeme, function);
+    environment.define(stmt.name.lexeme, new LoxFunction(fnName, stmt.function, environment));
     return null;
+  }
+
+  @Override
+  public Object visitFunctionExpr(Expr.Function expr) {
+    return new LoxFunction(null, expr, environment);
   }
 
   @Override
