@@ -1,0 +1,7 @@
+var a = 10;
+
+{
+  var b = "this is a string";
+}
+
+print a * 10;
