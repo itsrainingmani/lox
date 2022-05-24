@@ -22,8 +22,17 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   private final Interpreter interpreter;
   private final Stack<Map<String, Boolean>> scopes = new Stack<>();
 
+  // We can track whether or not the code we are currently visiting
+  // is inside a function declaration
+  private FunctionType currentFunction = FunctionType.NONE;
+
   Resolver(Interpreter interpreter) {
     this.interpreter = interpreter;
+  }
+
+  private enum FunctionType {
+    NONE,
+    FUNCTION
   }
 
   void resolve(List<Stmt> statements) {
@@ -53,7 +62,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     // Since we've implemented anonymous functions, we need to resolve the
     // underlying function expression within the named function
-    resolveFunction(stmt.function);
+    resolveFunction(stmt.function, FunctionType.FUNCTION);
     return null;
   }
 
@@ -65,6 +74,10 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitReturnStmt(Stmt.Return stmt) {
+    if (currentFunction == FunctionType.NONE) {
+      Lox.error(stmt.keyword, "Can't return from top-level code.");
+    }
+
     if (stmt.value != null)
       resolve(stmt.value);
     return null;
@@ -128,7 +141,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   @Override
   public Void visitFunctionExpr(Expr.Function expr) {
-    resolveFunction(expr);
+    resolveFunction(expr, currentFunction);
     return null;
   }
 
@@ -174,7 +187,10 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     expr.accept(this);
   }
 
-  private void resolveFunction(Expr.Function function) {
+  private void resolveFunction(Expr.Function function, FunctionType type) {
+    FunctionType enclosingFunction = currentFunction;
+    currentFunction = type;
+
     beginScope();
     for (Token param : function.parameters) {
       declare(param);
@@ -182,6 +198,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
     resolve(function.body);
     endScope();
+    currentFunction = enclosingFunction;
   }
 
   private void beginScope() {
@@ -205,6 +222,10 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     // represents whether or not we have finished resolving
     // that variable's initializer
     Map<String, Boolean> scope = scopes.peek();
+    if (scope.containsKey(name.lexeme)) {
+      Lox.error(name, "Already a variable with this name in this scope");
+    }
+
     scope.put(name.lexeme, false);
   }
 
