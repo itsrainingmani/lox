@@ -66,7 +66,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   @Override
   public Void visitReturnStmt(Stmt.Return stmt) {
     if (stmt.value != null)
-      resolve(stmt.value);å
+      resolve(stmt.value);
     return null;
   }
 
