@@ -309,13 +309,13 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     // This is the environment that is active when the function
     // is declared. Not when it's called. It represents the lexical scope
     // surrounding the function declaration
-    environment.define(stmt.name.lexeme, new LoxFunction(fnName, stmt.function, environment));
+    environment.define(stmt.name.lexeme, new LoxFunction(fnName, stmt.function, environment, false));
     return null;
   }
 
   @Override
   public Object visitFunctionExpr(Expr.Function expr) {
-    return new LoxFunction(null, expr, environment);
+    return new LoxFunction(null, expr, environment, false);
   }
 
   @Override
@@ -402,7 +402,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     Map<String, LoxFunction> methods = new HashMap<>();
     for (Stmt.Function method : stmt.methods) {
-      LoxFunction function = new LoxFunction(method.name.lexeme, method.function, environment);
+      LoxFunction function = new LoxFunction(method.name.lexeme, method.function, environment,
+          method.name.lexeme.equals("init"));
       methods.put(method.name.lexeme, function);
     }
 
