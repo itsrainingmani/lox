@@ -2,6 +2,16 @@ var a = 10;
 
 {
   var b = "this is a string";
+
+  print b;
+
+  b = 25;
+
+  var c = b / 5;
+
+  {
+    print c;
+  }
 }
 
 print a * 10;
