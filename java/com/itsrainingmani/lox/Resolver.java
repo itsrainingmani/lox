@@ -71,10 +71,19 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     declare(stmt.name);
     define(stmt.name);
 
+    // Whenever a this expr is envountered (atleast inside a method)
+    // it will resolve to a "local" variable defined in an implicit scope
+    // just outside of the block for the method body
+    beginScope();
+    scopes.peek().put("this",
+        new Variable(new Token(TokenType.THIS, "this", "this", stmt.name.line), VariableState.DECLARED));
+
     for (Stmt.Function method : stmt.methods) {
       FunctionType declaration = FunctionType.METHOD;
       resolveFunction(method.function, declaration);
     }
+
+    endScope();
 
     return null;
   }
@@ -179,6 +188,12 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   public Void visitSetExpr(Expr.Set expr) {
     resolve(expr.value);
     resolve(expr.object);
+    return null;
+  }
+
+  @Override
+  public Void visitThisExpr(Expr.This expr) {
+    resolveLocal(expr, expr.keyword, false);
     return null;
   }
 
