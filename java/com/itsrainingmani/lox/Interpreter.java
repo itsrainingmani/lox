@@ -372,7 +372,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   public Void visitClassStmt(Stmt.Class stmt) {
     environment.define(stmt.name.lexeme, null);
     LoxClass klass = new LoxClass(stmt.name.lexeme);
-    environment.assign(stmt.name.lexeme, klass);
+    environment.assign(stmt.name, klass);
     return null;
   }
 
