@@ -9,10 +9,12 @@ import static com.itsrainingmani.lox.TokenType.*;
 /*
 program        → declaration* EOF ;
 
-declaration    → funDecl
+declaration    → classDecl
+               | funDecl
                | varDecl
                | statement;
 
+classDecl      → "class" IDENTIFIER "{" function* "}" ;
 funDecl        → "fun" function ;
 function       → IDENTIFIER "(" parameters? ")" block ;
 parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
@@ -110,6 +112,8 @@ class Parser {
 
   private Stmt declaration() {
     try {
+      if (match(CLASS))
+        return classDeclaration();
 
       // Only parse a function declaration if the current token is FUN
       // and the next token is an identifier
@@ -125,6 +129,20 @@ class Parser {
       synchronize();
       return null;
     }
+  }
+
+  private Stmt classDeclaration() {
+    Token name = consume(IDENTIFIER, "Expect class name.");
+    consume(LEFT_BRACE, "Expect '{' before classs body.");
+
+    List<Stmt.Function> methods = new ArrayList<>();
+    while (!check(RIGHT_BRACE) && !isAtEnd()) {
+      methods.add(function("method"));
+    }
+
+    consume(RIGHT_BRACE, "Expect '}' before classs body.");
+
+    return new Stmt.Class(name, methods);
   }
 
   private Stmt statement() {
