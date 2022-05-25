@@ -42,7 +42,7 @@ block          → "{" declaration* "}" ;
 break          → "break" ;
 
 expression     → assignment ;
-assignment     → IDENTIFIER "=" assignment
+assignment     → ( call "." )? IDENTIFIER "=" assignment
                | logic_or ;
 logic_or       → logic_and ( "or" logic_and )* ;
 logic_and      → equality ( "and" equality)* ;
@@ -339,9 +339,16 @@ class Parser {
       Token equals = previous();
       Expr value = assignment();
 
+      // parse the left-hand side as a normal expression
+      // when we stumble onto the equal sign after it
+      // we take the parsed expression and transform it into the
+      // correct syntax node for assignment
       if (expr instanceof Expr.Variable) {
         Token name = ((Expr.Variable) expr).name;
         return new Expr.Assign(name, value);
+      } else if (expr instanceof Expr.Get) {
+        Expr.Get get = (Expr.Get) expr;
+        return new Expr.Set(get.object, get.name, value);
       }
 
       error(equals, "Invalid assignment target.");
