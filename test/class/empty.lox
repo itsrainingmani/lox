@@ -1,3 +1,15 @@
 class Foo {}
 
 print Foo; // expect: Foo
+
+class Bagel {}
+var bagel = Bagel();
+print bagel; // expect: Bagel instance
+
+class Bacon {
+  eat() {
+    print "Crunch crunch";
+  }
+}
+
+Bacon().eat(); // expect: Crunch crunch
