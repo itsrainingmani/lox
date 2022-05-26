@@ -326,7 +326,6 @@ class Parser {
 
     consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
     List<Stmt> body = block();
-
     return new Expr.Function(parameters, body);
   }
 
@@ -498,6 +497,9 @@ class Parser {
       return new Expr.Literal(previous().literal);
     }
 
+    if (match(FUN))
+      return functionBody("function");
+
     if (match(SUPER)) {
       Token keyword = previous();
       consume(DOT, "Expect '.' after 'super'.");
@@ -517,9 +519,6 @@ class Parser {
       consume(RIGHT_PAREN, "Expect ')' after expression.");
       return new Expr.Grouping(expr);
     }
-
-    if (match(FUN))
-      return functionBody("function");
 
     throw error(peek(), "Expect expression.");
   }
@@ -544,10 +543,12 @@ class Parser {
   }
 
   // Another token of lookahead
-  private boolean checkNext(TokenType type) {
-    if (isAtEnd() || tokens.get(current + 1).type == EOF)
+  private boolean checkNext(TokenType tokenType) {
+    if (isAtEnd())
       return false;
-    return tokens.get(current + 1).type == type;
+    if (tokens.get(current + 1).type == EOF)
+      return false;
+    return tokens.get(current + 1).type == tokenType;
   }
 
   // The advance() method consumes the current token and returns it, similar to
