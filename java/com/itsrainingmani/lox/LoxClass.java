@@ -19,6 +19,13 @@ class LoxClass implements LoxCallable {
       return methods.get(name);
     }
 
+    // If you can call some method on an instance of the superclass,
+    // you should be able to call that method when given an instance
+    // of the subclass
+    if (superclass != null) {
+      return superclass.findMethod(name);
+    }
+
     return null;
   }
 
