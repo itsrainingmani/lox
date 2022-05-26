@@ -76,6 +76,11 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
       resolve(stmt.superclass);
     }
 
+    if (stmt.superclass != null) {
+      beginScope();
+      scopes.peek().put("super", true);
+    }
+
     // Whenever a this expr is envountered (atleast inside a method)
     // it will resolve to a "local" variable defined in an implicit scope
     // just outside of the block for the method body
@@ -90,6 +95,9 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
       resolveFunction(method.function, declaration);
     }
     endScope();
+
+    if (stmt.superclass != null)
+      endScope();
 
     currentClass = enclosingClass;
     return null;
@@ -199,6 +207,12 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   public Void visitSetExpr(Expr.Set expr) {
     resolve(expr.value);
     resolve(expr.object);
+    return null;
+  }
+
+  @Override
+  public Void visitSuperExpr(Expr.Super expr) {
+    resolveLocal(expr, expr.keyword, false);
     return null;
   }
 
