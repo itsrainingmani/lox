@@ -70,7 +70,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     define(stmt.name);
 
     if (stmt.superclass != null && stmt.name.lexeme.equals(stmt.superclass.name.lexeme)) {
-      Lox.error(stmt.superclass.name, "A class can't inherit from itself");
+      Lox.error(stmt.superclass.name, "A class can't inherit from itself.");
     }
 
     if (stmt.superclass != null) {
@@ -136,7 +136,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     if (stmt.value != null) {
       if (currentFunction == FunctionType.INITIALIZER) {
-        Lox.error(stmt.keyword, "Can't return a value from an initializer");
+        Lox.error(stmt.keyword, "Can't return a value from an initializer.");
       }
       resolve(stmt.value);
     }
@@ -215,9 +215,9 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   @Override
   public Void visitSuperExpr(Expr.Super expr) {
     if (currentClass == ClassType.NONE) {
-      Lox.error(expr.keyword, "Can't use 'super' outside of a class");
+      Lox.error(expr.keyword, "Can't use 'super' outside of a class.");
     } else if (currentClass != ClassType.SUBCLASS) {
-      Lox.error(expr.keyword, "Can't use 'super' in a class with no superclass");
+      Lox.error(expr.keyword, "Can't use 'super' in a class with no superclass.");
     }
 
     resolveLocal(expr, expr.keyword, false);
@@ -319,7 +319,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     // that variable's initializer
     Map<String, Boolean> scope = scopes.peek();
     if (scope.containsKey(name.lexeme)) {
-      Lox.error(name, "Already a variable with this name in this scope");
+      Lox.error(name, "Already a variable with this name in this scope.");
     }
 
     scope.put(name.lexeme, false);

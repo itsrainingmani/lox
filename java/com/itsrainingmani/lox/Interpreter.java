@@ -150,7 +150,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
           return (String) left + (String) right;
         }
 
-        throw new RuntimeError(expr.operator, "Operands must be two numbers or two strings");
+        throw new RuntimeError(expr.operator, "Operands must be two numbers or two strings.");
       case SLASH:
         checkNumberOperands(expr.operator, left, right);
         return (double) left / (double) right;
@@ -180,7 +180,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     LoxCallable function = (LoxCallable) callee;
     if (arguments.size() != function.arity()) {
       throw new RuntimeError(expr.paren,
-          "Expected" + function.arity() + " arguments but got " + arguments.size() + ".");
+          "Expected " + function.arity() + " arguments but got " + arguments.size() + ".");
     }
 
     return function.call(this, arguments);
@@ -234,7 +234,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   private void checkNumberOperands(Token operator, Object left, Object right) {
     if (left instanceof Double && right instanceof Double)
       return;
-    throw new RuntimeError(operator, "Operands must be numbers");
+    throw new RuntimeError(operator, "Operands must be numbers.");
   }
 
   private Object evaluate(Expr expr) {

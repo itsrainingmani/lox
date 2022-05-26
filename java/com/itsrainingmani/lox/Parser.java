@@ -240,7 +240,7 @@ class Parser {
 
   private Stmt printStatement() {
     Expr value = expression();
-    consume(SEMICOLON, "Expect ';' after value.");
+    consume(SEMICOLON, "Expect ';' after expression.");
     return new Stmt.Print(value);
   }
 
@@ -275,7 +275,7 @@ class Parser {
       error(previous(), "Must be inside a loop to use 'break'.");
     }
 
-    consume(SEMICOLON, "Expect ';' after value.");
+    consume(SEMICOLON, "Expect ';' after expression.");
     return new Stmt.Break();
   }
 
@@ -287,7 +287,7 @@ class Parser {
       initializer = expression();
     }
 
-    consume(SEMICOLON, "Expect ';' after variable declaration");
+    consume(SEMICOLON, "Expect ';' after variable declaration.");
     return new Stmt.Var(name, initializer);
   }
 
@@ -300,7 +300,7 @@ class Parser {
     if (allowExpression && isAtEnd()) {
       foundExpression = true;
     } else {
-      consume(SEMICOLON, "Expect ';' after value.");
+      consume(SEMICOLON, "Expect ';' after expression.");
     }
     return new Stmt.Expression(expr);
   }
@@ -513,7 +513,7 @@ class Parser {
 
     if (match(LEFT_PAREN)) {
       Expr expr = expression();
-      consume(RIGHT_PAREN, "Expect ')' after expression");
+      consume(RIGHT_PAREN, "Expect ')' after expression.");
       return new Expr.Grouping(expr);
     }
 
