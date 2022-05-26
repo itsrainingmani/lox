@@ -166,16 +166,13 @@ void _runTest(String path) {
     _passed++;
     term.writeLine("${term.green("PASS")} $path");
     print("");
-    // for (var failure in failures) {
-    //   print("     ${term.pink(failure)}");
-    // }
   } else {
     _failed++;
-    // term.writeLine("${term.red("FAIL")} $path");
-    // print("");
-    // for (var failure in failures) {
-    //   print("     ${term.pink(failure)}");
-    // }
+    term.writeLine("${term.red("FAIL")} $path");
+    print("");
+    for (var failure in failures) {
+      print("     ${term.pink(failure)}");
+    }
     print("");
   }
 }
