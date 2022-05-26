@@ -497,8 +497,10 @@ class Parser {
       return new Expr.Literal(previous().literal);
     }
 
-    if (match(FUN))
+    if (check(FUN) && !checkNext(IDENTIFIER)) {
+      consume(FUN, null);
       return functionBody("function");
+    }
 
     if (match(SUPER)) {
       Token keyword = previous();
