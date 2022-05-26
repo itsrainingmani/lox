@@ -7,57 +7,57 @@ import java.util.List;
 import static com.itsrainingmani.lox.TokenType.*;
 
 /*
-program        → declaration* EOF ;
+program       → declaration* EOF ;
 
-declaration    → classDecl
-               | funDecl
-               | varDecl
-               | statement;
+declaration   → classDecl
+              | funDecl
+              | varDecl
+              | statement;
 
-classDecl      → "class" IDENTIFIER "{" function* "}" ;
-funDecl        → "fun" function ;
-function       → IDENTIFIER "(" parameters? ")" block ;
-parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
+classDecl     → "class" IDENTIFIER "{" function* "}" ;
+funDecl       → "fun" function ;
+function      → IDENTIFIER "(" parameters? ")" block ;
+parameters    → IDENTIFIER ( "," IDENTIFIER )* ;
 
-varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
-statement      → exprStmt
-               | forStmt
-               | ifStmt
-               | printStmt
-               | returnStmt
-               | whileStmt
-               | block
-               | break ;
+varDecl       → "var" IDENTIFIER ( "=" expression )? ";" ;
+statement     → exprStmt
+              | forStmt
+              | ifStmt
+              | printStmt
+              | returnStmt
+              | whileStmt
+              | block
+              | break ;
 
-exprStmt       → expression ";" ;
-forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
-                 expression? ";"
-                 expression? ")" statement ;
-ifStmt         → "if" "(" expression ")" statement
-               ( "else" statement)? ;
-printStmt      → "print" expression ";" ;
-returnStmt     → "return" expression? ";" ;
-whileStmt      → "while" "(" expression ")" statement;
-block          → "{" declaration* "}" ;
-break          → "break" ;
+exprStmt      → expression ";" ;
+forStmt       → "for" "(" ( varDecl | exprStmt | ";" )
+                expression? ";"
+                expression? ")" statement ;
+ifStmt        → "if" "(" expression ")" statement
+              ( "else" statement)? ;
+printStmt     → "print" expression ";" ;
+returnStmt    → "return" expression? ";" ;
+whileStmt     → "while" "(" expression ")" statement;
+block         → "{" declaration* "}" ;
+break         → "break" ;
 
-expression     → assignment ;
-assignment     → ( call "." )? IDENTIFIER "=" assignment
-               | logic_or ;
-logic_or       → logic_and ( "or" logic_and )* ;
-logic_and      → equality ( "and" equality)* ;
-equality       → comparison ( ( "!=" | "==" ) comparison )* ;
-comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
-term           → factor ( ( "-" | "+" ) factor )* ;
-factor         → unary ( ( "/" | "*" ) unary )* ;
-unary          → ( "!" | "-" ) unary | call ;
-call           → primary ( ."(" arguments? ")" | "." IDENTIFIER )* ; 
-arguments      → expression ( ", " expression )* ;
-primary        → "true" | "false" | "nil"
-               | NUMBER | STRING
-               | "(" expression ")"
-               | IDENTIFIER 
-               | lambdaFunctions ;
+expression    → assignment ;
+assignment    → ( call "." )? IDENTIFIER "=" assignment
+              | logic_or ;
+logic_or      → logic_and ( "or" logic_and )* ;
+logic_and     → equality ( "and" equality)* ;
+equality      → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison    → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term          → factor ( ( "-" | "+" ) factor )* ;
+factor        → unary ( ( "/" | "*" ) unary )* ;
+unary         → ( "!" | "-" ) unary | call ;
+call          → primary ( ."(" arguments? ")" | "." IDENTIFIER )* ; 
+arguments     → expression ( ", " expression )* ;
+primary       → "true" | "false" | "nil"
+              | NUMBER | STRING
+              | "(" expression ")"
+              | IDENTIFIER 
+              | lambdaFunctions ;
 */
 // A recursive descent parser is a literal translation of the grammar’s rules straight into imperative code. 
 // Each grammar rules becomes a method inside the Parser class
