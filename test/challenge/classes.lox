@@ -1,0 +1,24 @@
+class Bagel {}
+var bagel = Bagel();
+print bagel; // expect: Bagel instance
+
+class Bacon {
+  eat() {
+    print "Crunch crunch";
+  }
+}
+
+Bacon().eat(); // expect: Crunch crunch
+
+class Circle {
+  init(radius) {
+    this.radius = radius;
+  }
+
+  area {
+    return 3.14159 * this.radius * this.radius;
+  }
+}
+
+var circle = Circle(4);
+print circle.area;
