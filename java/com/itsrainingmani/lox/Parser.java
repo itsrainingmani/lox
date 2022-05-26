@@ -7,57 +7,59 @@ import java.util.List;
 import static com.itsrainingmani.lox.TokenType.*;
 
 /*
-program        → declaration* EOF ;
+program       → declaration* EOF ;
 
-declaration    → classDecl
-               | funDecl
-               | varDecl
-               | statement;
+declaration   → classDecl
+              | funDecl
+              | varDecl
+              | statement;
 
-classDecl      → "class" IDENTIFIER "{" function* "}" ;
-funDecl        → "fun" function ;
-function       → IDENTIFIER "(" parameters? ")" block ;
-parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
+classDecl     → "class" IDENTIFIER ( "<" IDENTIFIER )?
+                "{" function* "}" ;
+funDecl       → "fun" function ;
+function      → IDENTIFIER "(" parameters? ")" block ;
+parameters    → IDENTIFIER ( "," IDENTIFIER )* ;
 
-varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
-statement      → exprStmt
-               | forStmt
-               | ifStmt
-               | printStmt
-               | returnStmt
-               | whileStmt
-               | block
-               | break ;
+varDecl       → "var" IDENTIFIER ( "=" expression )? ";" ;
+statement     → exprStmt
+              | forStmt
+              | ifStmt
+              | printStmt
+              | returnStmt
+              | whileStmt
+              | block
+              | break ;
 
-exprStmt       → expression ";" ;
-forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
-                 expression? ";"
-                 expression? ")" statement ;
-ifStmt         → "if" "(" expression ")" statement
-               ( "else" statement)? ;
-printStmt      → "print" expression ";" ;
-returnStmt     → "return" expression? ";" ;
-whileStmt      → "while" "(" expression ")" statement;
-block          → "{" declaration* "}" ;
-break          → "break" ;
+exprStmt      → expression ";" ;
+forStmt       → "for" "(" ( varDecl | exprStmt | ";" )
+                expression? ";"
+                expression? ")" statement ;
+ifStmt        → "if" "(" expression ")" statement
+              ( "else" statement)? ;
+printStmt     → "print" expression ";" ;
+returnStmt    → "return" expression? ";" ;
+whileStmt     → "while" "(" expression ")" statement;
+block         → "{" declaration* "}" ;
+break         → "break" ;
 
-expression     → assignment ;
-assignment     → ( call "." )? IDENTIFIER "=" assignment
-               | logic_or ;
-logic_or       → logic_and ( "or" logic_and )* ;
-logic_and      → equality ( "and" equality)* ;
-equality       → comparison ( ( "!=" | "==" ) comparison )* ;
-comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
-term           → factor ( ( "-" | "+" ) factor )* ;
-factor         → unary ( ( "/" | "*" ) unary )* ;
-unary          → ( "!" | "-" ) unary | call ;
-call           → primary ( ."(" arguments? ")" | "." IDENTIFIER )* ; 
-arguments      → expression ( ", " expression )* ;
-primary        → "true" | "false" | "nil"
-               | NUMBER | STRING
-               | "(" expression ")"
-               | IDENTIFIER 
-               | lambdaFunctions ;
+expression    → assignment ;
+assignment    → ( call "." )? IDENTIFIER "=" assignment
+              | logic_or ;
+logic_or      → logic_and ( "or" logic_and )* ;
+logic_and     → equality ( "and" equality)* ;
+equality      → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison    → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term          → factor ( ( "-" | "+" ) factor )* ;
+factor        → unary ( ( "/" | "*" ) unary )* ;
+unary         → ( "!" | "-" ) unary | call ;
+call          → primary ( ."(" arguments? ")" | "." IDENTIFIER )* ; 
+arguments     → expression ( ", " expression )* ;
+primary       → "true" | "false" | "nil"
+              | NUMBER | STRING
+              | "(" expression ")"
+              | IDENTIFIER 
+              | "super" "." IDENTIFIER
+              | lambdaFunctions ;
 */
 // A recursive descent parser is a literal translation of the grammar’s rules straight into imperative code. 
 // Each grammar rules becomes a method inside the Parser class
@@ -134,6 +136,12 @@ class Parser {
   private Stmt classDeclaration() {
     Token name = consume(IDENTIFIER, "Expect class name.");
 
+    Expr.Variable superclass = null;
+    if (match(LESS)) {
+      consume(IDENTIFIER, "Expect superclass name.");
+      superclass = new Expr.Variable(previous());
+    }
+
     List<Stmt.Function> methods = new ArrayList<>();
     consume(LEFT_BRACE, "Expect '{' before classs body.");
 
@@ -143,7 +151,7 @@ class Parser {
 
     consume(RIGHT_BRACE, "Expect '}' before classs body.");
 
-    return new Stmt.Class(name, methods);
+    return new Stmt.Class(name, superclass, methods);
   }
 
   private Stmt statement() {
@@ -487,6 +495,13 @@ class Parser {
 
     if (match(NUMBER, STRING)) {
       return new Expr.Literal(previous().literal);
+    }
+
+    if (match(SUPER)) {
+      Token keyword = previous();
+      consume(DOT, "Expect '.' after 'super'.");
+      Token method = consume(IDENTIFIER, "Expect superclass method name.");
+      return new Expr.Super(keyword, method);
     }
 
     if (match(THIS))
