@@ -20,7 +20,7 @@ in an if stmt are visited. Logic operators are not short-circuited)
 
 class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   private final Interpreter interpreter;
-  private final Stack<Map<String, Variable>> scopes = new Stack<>();
+  private final Stack<Map<String, Boolean>> scopes = new Stack<>();
 
   // We can track whether or not the code we are currently visiting
   // is inside a function declaration
@@ -32,22 +32,6 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
   Resolver(Interpreter interpreter) {
     this.interpreter = interpreter;
-  }
-
-  private static class Variable {
-    final Token name;
-    VariableState state;
-
-    private Variable(Token name, VariableState state) {
-      this.name = name;
-      this.state = state;
-    }
-  }
-
-  private enum VariableState {
-    DECLARED,
-    DEFINED,
-    READ
   }
 
   private enum FunctionType {
@@ -88,8 +72,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     // it will resolve to a "local" variable defined in an implicit scope
     // just outside of the block for the method body
     beginScope();
-    scopes.peek().put("this",
-        new Variable(new Token(TokenType.THIS, "this", "this", stmt.name.line), VariableState.DECLARED));
+    scopes.peek().put("this", false);
 
     for (Stmt.Function method : stmt.methods) {
       FunctionType declaration = FunctionType.METHOD;
@@ -101,8 +84,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     for (Stmt.Function method : stmt.classMethods) {
       beginScope();
-      scopes.peek().put("this",
-          new Variable(new Token(TokenType.THIS, "this", "this", stmt.name.line), VariableState.DECLARED));
+      scopes.peek().put("this", false);
       resolveFunction(method.function, FunctionType.METHOD);
       endScope();
     }
@@ -263,7 +245,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   @Override
   public Void visitVariableExpr(Expr.Variable expr) {
     if (!scopes.isEmpty() && scopes.peek().containsKey(expr.name.lexeme)
-        && scopes.peek().get(expr.name.lexeme).state == VariableState.DECLARED) {
+        && scopes.peek().get(expr.name.lexeme) == Boolean.FALSE) {
       Lox.error(expr.name, "Can't read local variable in its own initializer.");
     }
 
@@ -294,17 +276,11 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   private void beginScope() {
-    scopes.push(new HashMap<String, Variable>());
+    scopes.push(new HashMap<String, Boolean>());
   }
 
   private void endScope() {
-    Map<String, Variable> scope = scopes.pop();
-
-    for (Map.Entry<String, Variable> entry : scope.entrySet()) {
-      if (entry.getValue().state == VariableState.DEFINED) {
-        Lox.error(entry.getValue().name, "Local variable is not used");
-      }
-    }
+    scopes.pop();
   }
 
   // Declaration adds the variable to the innermost scope
@@ -319,12 +295,12 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     // The value associated with a key in the scope map
     // represents whether or not we have finished resolving
     // that variable's initializer
-    Map<String, Variable> scope = scopes.peek();
+    Map<String, Boolean> scope = scopes.peek();
     if (scope.containsKey(name.lexeme)) {
       Lox.error(name, "Already a variable with this name in this scope");
     }
 
-    scope.put(name.lexeme, new Variable(name, VariableState.DECLARED));
+    scope.put(name.lexeme, false);
   }
 
   private void define(Token name) {
@@ -332,7 +308,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
       return;
 
     // we mark the variable as fully initialized and available for use
-    scopes.peek().get(name.lexeme).state = VariableState.DEFINED;
+    scopes.peek().put(name.lexeme, true);
   }
 
   // We start at the innermost scope and work outwards, looking in each map
@@ -343,11 +319,6 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     for (int i = scopes.size() - 1; i >= 0; i--) {
       if (scopes.get(i).containsKey(name.lexeme)) {
         interpreter.resolve(expr, scopes.size() - 1 - i);
-
-        // Mark it used/
-        if (isRead) {
-          scopes.get(i).get(name.lexeme).state = VariableState.READ;
-        }
         return;
       }
     }
