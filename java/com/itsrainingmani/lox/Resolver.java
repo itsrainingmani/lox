@@ -68,6 +68,13 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     declare(stmt.name);
     define(stmt.name);
 
+    for (Stmt.Function cMethod : stmt.classMethods) {
+      beginScope();
+      scopes.peek().put("this", true);
+      resolveFunction(cMethod.function, FunctionType.METHOD);
+      endScope();
+    }
+
     // Whenever a this expr is envountered (atleast inside a method)
     // it will resolve to a "local" variable defined in an implicit scope
     // just outside of the block for the method body
