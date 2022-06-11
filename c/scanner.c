@@ -22,6 +22,20 @@ static char advance() {
   return scanner.current[-1];
 }
 
+// Returns current char but doesn't consume it
+static char peek() {
+  return *scanner.current;
+}
+
+// If current char is the expected one, we advance and return true
+// Otherwise, we return false to indicate it wasn't matched
+static bool match(char expected) {
+  if (isAtEnd()) return false;
+  if (*scanner.current != expected) return false;
+  scanner.current++;
+  return true;
+}
+
 static Token makeToken(TokenType type) {
   Token token;
   token.type = type;
@@ -40,6 +54,26 @@ static Token errorToken(const char* message) {
   return token;
 }
 
+static void skipWhitespace() {
+  for (;;) {
+    char c = peek();
+    switch (c)
+    {
+    case ' ':
+    case '\r':
+    case '\t':
+      advance();
+      break;
+    case '\n':
+      scanner.line++;
+      advance();
+      break;
+    default:
+      return;
+    }
+  }
+}
+
 void initScanner(const char* source) {
   scanner.start = source;
   scanner.current = source;
@@ -47,6 +81,7 @@ void initScanner(const char* source) {
 }
 
 Token scanToken() {
+  skipWhitespace();
   scanner.start = scanner.current;
 
   if (isAtEnd()) return makeToken(TOKEN_EOF);
@@ -66,6 +101,23 @@ Token scanToken() {
   case '+': return makeToken(TOKEN_PLUS);
   case '/': return makeToken(TOKEN_SLASH);
   case '*': return makeToken(TOKEN_STAR);
+    // two-character punctuation tokens
+  case '!':
+    return makeToken(
+      match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG
+    );
+  case '=':
+    return makeToken(
+      match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL
+    );
+  case '<':
+    return makeToken(
+      match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS
+    );
+  case '>':
+    return makeToken(
+      match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER
+    );
   }
 
   return errorToken("Unexpected character.");
