@@ -27,6 +27,7 @@ static char peek() {
   return *scanner.current;
 }
 
+// Returns the next character past current but doesn't consume it
 static char peekNext() {
   if (isAtEnd()) return '\0';
   return scanner.current[1];
@@ -70,6 +71,7 @@ static void skipWhitespace() {
       advance();
       break;
     case '\n':
+      // when we consume a newline, we bump the line number
       scanner.line++;
       advance();
       break;
