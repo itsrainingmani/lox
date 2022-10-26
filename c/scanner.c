@@ -90,10 +90,43 @@ static void skipWhitespace() {
   }
 }
 
+// We are defering the conversion of the literal number or string lexeme
+// to a runtime value until later.
+static Token number() {
+  while (isDigit(peek())) advance();
+
+  // Look for a fractional part
+  if (peek() == '.' && isDigit(peekNext())) {
+    // Consume the "."
+    advance();
+
+    while (isDigit(peek())) advance();
+  }
+
+  return makeToken(TOKEN_NUMBER);
+}
+
+static Token string() {
+  while (peek() != '"' && !isAtEnd()) {
+    if (peek() == '\n') scanner.line++;
+    advance();
+  }
+
+  if (isAtEnd()) return errorToken("Unterminated string.");
+
+  // the closing quote
+  advance();
+  return makeToken(TOKEN_STRING);
+}
+
 void initScanner(const char* source) {
   scanner.start = source;
   scanner.current = source;
   scanner.line = 1;
+}
+
+static bool isDigit(char c) {
+  return c >= '0' && c <= '9';
 }
 
 Token scanToken() {
@@ -103,6 +136,7 @@ Token scanToken() {
   if (isAtEnd()) return makeToken(TOKEN_EOF);
 
   char c = advance();
+  if (isDigit(c)) return number();
 
   switch (c) {
     // single character lexemes
@@ -134,6 +168,7 @@ Token scanToken() {
     return makeToken(
       match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER
     );
+  case '"': return string();
   }
 
   return errorToken("Unexpected character.");
