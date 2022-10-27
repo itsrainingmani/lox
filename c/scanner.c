@@ -90,6 +90,19 @@ static void skipWhitespace() {
   }
 }
 
+static TokenType identifierType() {
+  return TOKEN_IDENTIFIER;
+}
+
+static Token identifier() {
+  // After the first letter, we allow digits too.
+  // we keep consuming alphanumerics until we run out of them.
+  while (isAlpha(peek()) || isDigit(peek())) advance();
+
+  // we then produce a token with the proper "type"
+  return makeToken(identifierType());
+}
+
 // We are defering the conversion of the literal number or string lexeme
 // to a runtime value until later.
 static Token number() {
@@ -125,6 +138,10 @@ void initScanner(const char* source) {
   scanner.line = 1;
 }
 
+static bool isAlpha(char c) {
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+}
+
 static bool isDigit(char c) {
   return c >= '0' && c <= '9';
 }
@@ -136,6 +153,7 @@ Token scanToken() {
   if (isAtEnd()) return makeToken(TOKEN_EOF);
 
   char c = advance();
+  if (isAlpha(c)) return identifier();
   if (isDigit(c)) return number();
 
   switch (c) {
