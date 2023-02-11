@@ -5,6 +5,10 @@
 #include "compiler.h"
 #include "scanner.h"
 
+#ifdef DEBUG_PRINT_CODE
+#include "debug.h"
+#endif
+
 typedef struct {
   Token current;
   Token previous;
@@ -129,6 +133,12 @@ static void emitConstant(Value value) {
 
 static void endCompiler() {
   emitReturn();
+#ifdef DEBUG_PRINT_CODE
+  // Only do this if the code is free of errors
+  if (!parser.hadError) {
+    disassembleChunk(currentChunk(), "code");
+  }
+#endif
 }
 
 // Forward Declarations to handle recursive grammar
