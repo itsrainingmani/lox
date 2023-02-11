@@ -11,6 +11,10 @@ typedef struct {
   // byte pointer into the middle of the bytecode array- ip : Instruction Pointer
   uint8_t* ip;
   Value stack[STACK_MAX];
+
+  // Direct pointer instead of index since it's faster to deref the ptr
+  // than calculate offset from index each time.
+  // stackTop points to where the next value is to be pushed
   Value* stackTop;
 } VM;
 
