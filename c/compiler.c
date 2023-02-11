@@ -12,6 +12,22 @@ typedef struct {
   bool panicMode; // flag to track if we're currently in panic mode
 } Parser;
 
+// Lox Precedence Levels from Lowest to Highest
+// C implicitly gives successively larger numbers for enums
+typedef enum {
+  PREC_NONE,
+  PREC_ASSIGNMENT, // =
+  PREC_OR,         // or
+  PREC_AND,        // and
+  PREC_EQUALITY,   // == !=
+  PREC_COMPARISON, // < > <= >=
+  PREC_TERM,       // + -
+  PREC_FACTOR,     // * /
+  PREC_UNARY,      // ! -
+  PREC_CALL,       // . ()
+  PREC_PRIMARY
+} Precedence;
+
 Parser parser;
 Chunk* compilingChunk;
 
@@ -105,6 +121,22 @@ static void endCompiler() {
   emitReturn();
 }
 
+// Function for infix parsing
+static void binary() {
+  TokenType operatorType = parser.previous.type;
+  ParseRule* rule = getRule(operatorType);
+  parsePrecedence((Precedence)(rule->precedence + 1));
+
+  switch (operatorType)
+  {
+  case TOKEN_PLUS:   emitByte(OP_ADD); break;
+  case TOKEN_MINUS:  emitByte(OP_SUBTRACT); break;
+  case TOKEN_STAR:   emitByte(OP_MULTIPLY); break;
+  case TOKEN_SLASH:  emitByte(OP_DIVIDE); break;
+  default: return; // Unreachable
+  }
+}
+
 static void grouping() {
   expression();
   consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression");
@@ -120,7 +152,7 @@ static void unary() {
   TokenType operatorType = parser.previous.type;
 
   // Compile the operand
-  expression();
+  parsePrecedence(PREC_UNARY);
 
   // Emit the operator instruction
   switch (operatorType)
@@ -130,8 +162,12 @@ static void unary() {
   }
 }
 
-static void expression() {
+static void parsePrecedence(Precedence precedence) {
   // TODO
+}
+
+static void expression() {
+  parsePrecedence(PREC_ASSIGNMENT);
 }
 
 void compile(const char* source, Chunk* chunk) {
