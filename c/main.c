@@ -43,7 +43,7 @@ static char* readFile(const char* path) {
 
   size_t bytesRead = fread(buffer, sizeof(char), fileSize, file);
   // the file read itself might fail
-  if (bytesRead == NULL) {
+  if (bytesRead < fileSize) {
     fprintf(stderr, "Could not read file \"%s\".\n", path);
     exit(74);
   }
