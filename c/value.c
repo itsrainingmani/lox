@@ -35,3 +35,17 @@ void printValue(Value value) {
   case VAL_NUMBER: printf("%g", AS_NUMBER(value)); break;
   }
 }
+
+bool valuesEqual(Value a, Value b) {
+  // If Values have diff types, they are def not equal
+  if (a.type != b.type) return false;
+  switch (a.type)
+  {
+  case VAL_BOOL: return AS_BOOL(a) == AS_BOOL(b);
+  case VAL_NIL: return true;
+  case VAL_NUMBER: return AS_NUMBER(a) == AS_NUMBER(b);
+  default: return false; // Unreachable
+  }
+
+  // We don't simply memcmp() the two Value structs. Due to padding and diff-sized union fields, the Value will have unused bits and C doesn't give a guarantee about what is in those unused bits. So even if the actual values are the same, the contents of the unused bits might differ causing a comparison to fail.
+}
