@@ -19,6 +19,10 @@ typedef enum {
 
 struct Obj {
   ObjType type;
+
+  // Intrusive list - The obj struct itself will be the linked list node
+  // Each obj gets a pointer to the next Obj on the chain
+  struct Obj* next;
 };
 
 struct ObjString {

@@ -12,6 +12,12 @@
 static Obj* allocateObject(size_t size, ObjType type) {
   Obj* object = (Obj*)reallocate(NULL, 0, size);
   object->type = type;
+
+  // When we allocate an object, we insert it in the list
+  // We insert in the head since it's easier than maintaining a pointer
+  // to the tail
+  object->next = vm.objects;
+  vm.objects = object;
   return object;
 }
 

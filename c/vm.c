@@ -35,9 +35,15 @@ static void runtimeError(const char* format, ...) {
 
 void initVM() {
   resetStack();
+
+  // When we initialize the VM, there are no allocated objects
+  vm.objects = NULL;
 }
 
-void freeVM() {}
+// Once the program is done, we can free *every* object
+void freeVM() {
+  freeObjects();
+}
 
 void push(Value value) {
   // stores value in the array element at the top of the stack
