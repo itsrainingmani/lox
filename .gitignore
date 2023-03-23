@@ -44,5 +44,9 @@ xcuserdata/
 /tool/.dart_tool/
 /tool/.packages
 
+# Zig stuff.
+/zig-cache/
+/zig-out/
+
 # MacOS
 .DS_Store
