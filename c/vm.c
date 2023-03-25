@@ -38,10 +38,13 @@ void initVM() {
 
   // When we initialize the VM, there are no allocated objects
   vm.objects = NULL;
+
+  initTable(&vm.strings);
 }
 
 // Once the program is done, we can free *every* object
 void freeVM() {
+  freeTable(&vm.strings);
   freeObjects();
 }
 

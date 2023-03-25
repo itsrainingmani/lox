@@ -3,6 +3,7 @@
 
 #include "memory.h"
 #include "object.h"
+#include "table.h"
 #include "value.h"
 #include "vm.h"
 
@@ -30,6 +31,10 @@ static ObjString* allocateString(char* chars, int length, uint32_t hash) {
   string->length = length;
   string->chars = chars;
   string->hash = hash;
+
+  // automatically intern a new unique string
+  tableSet(&vm.strings, string, NIL_VAL);
+
   return string;
 }
 
@@ -49,11 +54,23 @@ static uint32_t hashString(const char* key, int length) {
 /// @brief takeString() claims ownership of the string you give it
 ObjString* takeString(char* chars, int length) {
   uint32_t hash = hashString(chars, length);
+  ObjString* interned = tableFindString(&vm.strings, chars, length, hash);
+
+  // If we find the string in the table, we free the memory for the string that was passed in.
+  // Since ownership is being passed to this function, we no longer need the duplicate string and we can free it
+  if (interned != NULL) {
+    FREE_ARRAY(char, chars, length + 1);
+    return interned;
+  }
   return allocateString(chars, length, hash);
 }
 
 ObjString* copyString(const char* chars, int length) {
   uint32_t hash = hashString(chars, length);
+
+  // If we find the string in the table, we return a reference to that string
+  ObjString* interned = tableFindString(&vm.strings, chars, length, hash);
+  if (interned != NULL) return interned;
   // Allocating array on the heap that is big enough for the string
   // and the trailing terminator
   char* heapChars = ALLOCATE(char, length + 1);
