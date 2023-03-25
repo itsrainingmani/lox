@@ -14,6 +14,7 @@ pub fn build(b: *std.build.Builder) !void {
 
     const cflags = flags ++ [_][]const u8{"-std=c99"};
 
+    std.debug.print("Walking source dir and adding c files\n\n", .{});
     var sources = std.ArrayList([]const u8).init(b.allocator);
     {
         var dir = try fs.cwd().openIterableDir("c", .{});
@@ -32,12 +33,14 @@ pub fn build(b: *std.build.Builder) !void {
             } else false;
             if (include_file) {
                 // clone path or else walker.deinit() will dump the memory
-                std.debug.print("Adding - {s: <10} ", .{entry.path});
-                std.debug.print("{s: <5}\n", .{&cflags});
+                std.debug.print("{s: <10} {s: <5}\n", .{ entry.path, &cflags });
+                // std.debug.print("\n", .{&cflags});
                 try sources.append(b.pathJoin(&.{ "c", entry.path }));
             }
         }
     }
+
+    std.debug.print("Building clox executable\n\n", .{});
 
     const exe = b.addExecutable("clox", null);
     exe.setTarget(target);
@@ -49,12 +52,16 @@ pub fn build(b: *std.build.Builder) !void {
     exe.linkLibC();
     exe.install();
 
-    const run_step = exe.run();
+    const repl = exe.run();
+    const run = exe.run();
 
     // if we need to run a lox file
     if (b.args) |args| {
-        run_step.addArgs(args);
+        run.addArgs(args);
     }
-    const step = b.step("repl", "Open the Clox REPL");
-    step.dependOn(&run_step.step);
+    const repl_step = b.step("repl", "Open the Clox REPL");
+    const run_step = b.step("run", "Run the file through Clox");
+
+    repl_step.dependOn(&repl.step);
+    run_step.dependOn(&run.step);
 }
