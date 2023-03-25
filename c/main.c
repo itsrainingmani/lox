@@ -9,6 +9,7 @@
 
 static void repl() {
   char line[1024];
+  printf("Welcome to the Lox REPL!\n");
   for (;;) {
     printf("> ");
 
