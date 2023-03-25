@@ -32,7 +32,8 @@ pub fn build(b: *std.build.Builder) !void {
             } else false;
             if (include_file) {
                 // clone path or else walker.deinit() will dump the memory
-                std.debug.print("Adding - {s}\n", .{entry.path});
+                std.debug.print("Adding - {s: <10} ", .{entry.path});
+                std.debug.print("{s: <5}\n", .{&cflags});
                 try sources.append(b.pathJoin(&.{ "c", entry.path }));
             }
         }
@@ -47,4 +48,13 @@ pub fn build(b: *std.build.Builder) !void {
 
     exe.linkLibC();
     exe.install();
+
+    const run_step = exe.run();
+
+    // if we need to run a lox file
+    if (b.args) |args| {
+        run_step.addArgs(args);
+    }
+    const step = b.step("run", "Run the Clox Interpreter");
+    step.dependOn(&run_step.step);
 }
