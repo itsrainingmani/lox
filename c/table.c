@@ -26,15 +26,26 @@ void freeTable(Table* table) {
 static Entry* findEntry(Entry* entries, int capacity, ObjString* key) {
   // Modulo to map the key's hash to an index within the array's bounds (bucket index)
   uint32_t index = key->hash % capacity;
+  Entry* tombstone = NULL;
 
   // Linear Probing
   for (;;) {
     // Start at bucket that the entry would ideally go to
     Entry* entry = &entries[index];
 
-    // If bucket has the same key or the bucket is empty, we're done
-    if (entry->key == key || entry->key == NULL) {
-
+    // If bucket is empty, check if it's empty or a tombstone value
+    if (entry->key == NULL) {
+      if (IS_NIL(entry->value)) {
+        // Empty entry.
+        return tombstone != NULL ? tombstone : entry;
+      }
+      else {
+        // we found a tombstone
+        if (tombstone == NULL) tombstone = entry;
+      }
+    }
+    else if (entry->key == key) {
+      // Found the entry
       // Yield a pointer to the Found Entry so the caller can either insert something into it or read from it
       return entry;
     }
@@ -112,4 +123,18 @@ void tableAddAll(Table* from, Table* to) {
       tableSet(to, entry->key, entry->value);
     }
   }
+}
+
+bool tableDelete(Table* table, ObjString* key) {
+  if (table->count == 0) return false;
+
+  // Find the entry
+  Entry* entry = findEntry(table->entries, table->capacity, key);
+  if (entry->key == NULL) return false;
+
+  // Place a tombstone in the entry
+  // A tombstone is a sentinel entry that let's us know that we didn't just reach an empty slot when we follow the probe sequence
+  entry->key = NULL;
+  entry->value = BOOL_VAL(true);
+  return true;
 }
