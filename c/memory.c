@@ -14,8 +14,9 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize) {
   return result;
 }
 
-// Since we aren't freeing only the Obj. Some object types also allocate other memory that they own.
-// We need some type-specific code to handle each object type's special needs.
+/// @brief Since we aren't freeing only the Obj. Some object types also allocate other memory that they own.
+/// We need some type-specific code to handle each object type's special needs.
+/// @param object 
 static void freeObject(Obj* object) {
   switch (object->type) {
   case OBJ_STRING: {
@@ -29,6 +30,7 @@ static void freeObject(Obj* object) {
   }
 }
 
+/// @brief Walk the linked the list and free its nodes
 void freeObjects() {
   Obj* object = vm.objects;
   while (object != NULL) {

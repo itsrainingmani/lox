@@ -21,6 +21,10 @@ static Obj* allocateObject(size_t size, ObjType type) {
   return object;
 }
 
+/// @brief Allocates Object of given size on heap. Size includes room needed for extra payload fields needed by the specific object type being created
+/// @param chars 
+/// @param length 
+/// @return 
 static ObjString* allocateString(char* chars, int length) {
   ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
   string->length = length;
@@ -34,6 +38,8 @@ ObjString* takeString(char* chars, int length) {
 }
 
 ObjString* copyString(const char* chars, int length) {
+  // Allocating array on the heap that is big enough for the string
+  // and the trailing terminator
   char* heapChars = ALLOCATE(char, length + 1);
   memcpy(heapChars, chars, length);
   heapChars[length] = '\0';

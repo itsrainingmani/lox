@@ -17,6 +17,7 @@ typedef enum {
   OBJ_STRING,
 } ObjType;
 
+/// @brief Linked List that stores every Obj. The VM traverses the list to find every single object that has been allocated on the heap, whether or not the uesr's program or the VM's stack still has a reference to it.
 struct Obj {
   ObjType type;
 
