@@ -55,6 +55,6 @@ pub fn build(b: *std.build.Builder) !void {
     if (b.args) |args| {
         run_step.addArgs(args);
     }
-    const step = b.step("run", "Run the Clox Interpreter");
+    const step = b.step("repl", "Open the Clox REPL");
     step.dependOn(&run_step.step);
 }
