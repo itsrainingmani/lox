@@ -68,6 +68,7 @@ bool tableGet(Table* table, ObjString* key, Value* value) {
 static void adjustCapacity(Table* table, int capacity) {
   Entry* entries = ALLOCATE(Entry, capacity);
 
+  table->count = 0;
   for (int i = 0; i < capacity; i++)
   {
     entries[i].key = NULL;
@@ -85,6 +86,8 @@ static void adjustCapacity(Table* table, int capacity) {
     Entry* dest = findEntry(entries, capacity, entry->key);
     dest->key = entry->key;
     dest->value = entry->value;
+
+    table->count++;
   }
 
   // Free memory for the old array
@@ -107,7 +110,9 @@ bool tableSet(Table* table, ObjString* key, Value value) {
 
   Entry* entry = findEntry(table->entries, table->capacity, key);
   bool isNewKey = entry->key == NULL;
-  if (isNewKey) table->count++;
+
+  // Only increment if the new entry goes into an entirely empty bucket
+  if (isNewKey && IS_NIL(entry->value)) table->count++;
 
   entry->key = key;
   entry->value = value;
