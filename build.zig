@@ -1,9 +1,9 @@
 const std = @import("std");
 const fs = std.fs;
 
-pub fn build(b: *std.build.Builder) !void {
+pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
-    const mode = b.standardReleaseOptions();
+    const optimize = b.standardOptimizeOption(.{});
 
     const flags = [_][]const u8{
         "-Wall",
@@ -42,18 +42,16 @@ pub fn build(b: *std.build.Builder) !void {
 
     std.debug.print("Building clox executable\n\n", .{});
 
-    const exe = b.addExecutable("clox", null);
-    exe.setTarget(target);
-    exe.setBuildMode(mode);
+    const exe = b.addExecutable(.{ .name = "clox", .target = target, .optimize = optimize });
 
-    exe.addIncludePath("c");
+    exe.addIncludePath(.{ .path = "c" });
     exe.addCSourceFiles(sources.items, &cflags);
 
     exe.linkLibC();
-    exe.install();
+    b.installArtifact(exe);
 
-    const repl = exe.run();
-    const run = exe.run();
+    const repl = b.addRunArtifact(exe);
+    const run = b.addRunArtifact(exe);
 
     // if we need to run a lox file
     if (b.args) |args| {
