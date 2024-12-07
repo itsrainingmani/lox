@@ -6,6 +6,15 @@
 
 typedef enum { OP_CONSTANT, OP_RETURN } OpCode;
 
+// Each of these marks the beginning of a new source line in the code, and the
+// corresponding byte offset of the first instruction on that line. Any bytes
+// after that first one are understood to be on that same line, until we hit the
+// next LineStart.
+typedef struct {
+  int offset;
+  int line;
+} LineStart;
+
 // Dynamic Array of Bytes
 // Cache-friendly, dense storage
 // Constant-time indexed element lookup
@@ -14,13 +23,17 @@ typedef struct {
   int count;
   int capacity;
   uint8_t *code;
-  int *lines;
   ValueArray constants;
+
+  int lineCount;
+  int lineCapacity;
+  LineStart *lines;
 } Chunk;
 
 void initChunk(Chunk *chunk);
 void freeChunk(Chunk *chunk);
 void writeChunk(Chunk *chunk, uint8_t byte, int line);
+int getLine(Chunk *chunk, int instrIndex);
 int addConstant(Chunk *chunk, Value value);
 
 #endif // !clox_chunk_h
