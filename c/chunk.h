@@ -4,7 +4,16 @@
 #include "common.h"
 #include "value.h"
 
-typedef enum { OP_CONSTANT, OP_CONSTANT_LONG, OP_RETURN } OpCode;
+typedef enum {
+  OP_CONSTANT,
+  OP_CONSTANT_LONG,
+  OP_ADD,
+  OP_SUBTRACT,
+  OP_MULTIPLY,
+  OP_DIVIDE,
+  OP_NEGATE,
+  OP_RETURN
+} OpCode;
 
 // Each of these marks the beginning of a new source line in the code, and the
 // corresponding byte offset of the first instruction on that line. Any bytes
