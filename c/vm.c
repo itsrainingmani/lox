@@ -86,8 +86,10 @@ static InterpretResult run() {
       BINARY_OP(/);
       break;
     case OP_NEGATE: {
-      push(-pop());
-      break;
+      /* push(-pop()); */
+      // Directly negate the value in place on the stack
+      // by multiplying it with -1
+      *(vm.stackTop - 1) *= -1;
     }
     case OP_RETURN: {
       printValue(pop());
