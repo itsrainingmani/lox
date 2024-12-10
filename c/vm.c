@@ -7,6 +7,7 @@
 #include "compiler.h"
 #include "debug.h"
 #include "memory.h"
+#include "table.h"
 #include "value.h"
 #include "vm.h"
 
@@ -33,9 +34,13 @@ static void runtimeError(const char *format, ...) {
 void initVM() {
   resetStack();
   vm.objects = NULL;
+  initTable(&vm.strings);
 }
 
-void freeVM() { freeObjects(); }
+void freeVM() {
+  freeTable(&vm.strings);
+  freeObjects();
+}
 
 // The first line stores value in the array element at the top of the stack.
 // Remember, stackTop points just past the last used element, at the next
